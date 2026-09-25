@@ -1,8 +1,7 @@
 ---
 title: Ana Moreno
-navLabel: Ana Moreno
 type: staff
-order: 10
+order: 20
 category: Marketing
 tagline: Marketing officer and Order404 member, filming and editing for the organization.
 summary: Marketing officer and Order404 member, filming and editing for the organization.

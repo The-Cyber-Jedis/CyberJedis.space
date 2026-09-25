@@ -47,7 +47,7 @@ const CJ = (() => {
   }
 
   function stripComments(md) {
-    return md.replace(/<!--[\s\S]*?-->/g, "");
+    return String(md == null ? "" : md).replace(/<!--[\s\S]*?-->/g, "");
   }
 
   function sanitize(html) {
@@ -104,8 +104,7 @@ const CJ = (() => {
   }
 
   function splitSections(body) {
-    const clean = stripComments(body).replace(/\r/g, "");
-    const lines = clean.split("\n");
+    const clean = stripComments(body).replace(/\r/g, "");    const lines = clean.split("\n");
     const sections = [];
     let current = null;
     for (const line of lines) {
@@ -144,14 +143,14 @@ const CJ = (() => {
 
   function renderHeader(active) {
     const c = state.config;
-    const home = `<li><a href="index.html"${active === "home" ? ' class="active" aria-current="page"' : ""}>Home</a></li>`;
+    const home = `<li><a href="index.html"${active === "home" ? ' class="active" aria-current="page"' : ""}>Home</a></li>\n          `;
     const links = navPages()
       .filter((p) => p.slug !== "home")
       .map((p) => {
         const on = p.slug === active ? ' class="active" aria-current="page"' : "";
         return `<li><a href="${pageUrl(p.slug)}"${on}>${esc(p.navLabel || p.title)}</a></li>`;
       })
-      .join("");
+      .join("\n          ");
     return `
       <a class="skip" href="#main">Skip to content</a>
       <div class="brand">
@@ -174,7 +173,7 @@ const CJ = (() => {
         const m = meta[key] || {};
         return `<li><a class="social-chip" href="${esc(url)}" style="--chip:${esc(m.color || "#c0c0c0")}" title="${esc(m.label || key)}">${esc((m.label || key).slice(0, 2).toUpperCase())}</a></li>`;
       })
-      .join("");
+      .join("\n          ");
   }
 
   function renderFooter() {
@@ -188,10 +187,13 @@ const CJ = (() => {
         </div>
         <div>
           <h2 class="footer-heading">Pages</h2>
-          <ul class="footer-links"><li><a href="index.html">Home</a></li>${navPages()
-            .filter((p) => p.slug !== "home")
-            .map((p) => `<li><a href="${pageUrl(p.slug)}">${esc(p.navLabel || p.title)}</a></li>`)
-            .join("")}</ul>
+          <ul class="footer-links">
+            <li><a href="index.html">Home</a></li>
+            ${navPages()
+              .filter((p) => p.slug !== "home")
+              .map((p) => `<li><a href="${pageUrl(p.slug)}">${esc(p.navLabel || p.title)}</a></li>`)
+              .join("\n            ")}
+          </ul>
         </div>
         <div>
           <h2 class="footer-heading">Follow</h2>
@@ -403,10 +405,13 @@ const CJ = (() => {
         })
         .join("");
     } else {
-      chips.remove();
+      chips.hidden = true;
     }
     const apply = () => {
-      const on = new Set(Array.from(chips.querySelectorAll("input:checked")).map((i) => i.value));
+      const inputs = Array.from(chips.querySelectorAll("input"));
+      const on = inputs.length
+        ? new Set(inputs.filter((i) => i.checked).map((i) => i.value))
+        : new Set(buckets.keys());
       const q = (search.value || "").trim().toLowerCase();
       let shown = 0;
       cards.forEach((c) => {

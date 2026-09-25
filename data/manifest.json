@@ -36,116 +36,6 @@
       "updated": "2026-09-25"
     },
     {
-      "slug": "cwns",
-      "title": "Cyber Warfare and National Security",
-      "navLabel": "CWNS",
-      "nav": false,
-      "tagline": "We are a research group focused heavily on cybersecurity within the context of warfare.",
-      "summary": "Offensive security, malware analysis, and digital forensics in the context of modern conflict.",
-      "type": "team",
-      "list": null,
-      "listLabel": null,
-      "category": "Research",
-      "tags": [
-        "cyber warfare",
-        "malware",
-        "forensics"
-      ],
-      "order": 20,
-      "accent": "#8338ec",
-      "logo": null,
-      "postsLabel": null,
-      "media": [
-        {
-          "file": "PAGES/CWNS/media/6E97D597-3DA3-4FA1-BA39-5D969F4FF166.jpg",
-          "name": "6E97D597-3DA3-4FA1-BA39-5D969F4FF166.jpg",
-          "bytes": 3371222
-        },
-        {
-          "file": "PAGES/CWNS/media/98D5852A-420C-4C4D-AAE6-7359E1A4F566.jpg",
-          "name": "98D5852A-420C-4C4D-AAE6-7359E1A4F566.jpg",
-          "bytes": 2104161
-        },
-        {
-          "file": "PAGES/CWNS/media/IMG_5192.jpg",
-          "name": "IMG_5192.jpg",
-          "bytes": 196887
-        }
-      ],
-      "source": "PAGES/CWNS/page.md",
-      "sections": [
-        "about",
-        "gallery",
-        "mission",
-        "what-we-do",
-        "team",
-        "schedule",
-        "contact"
-      ],
-      "words": 172,
-      "empty": false,
-      "published": true,
-      "updated": "2026-09-25"
-    },
-    {
-      "slug": "episode",
-      "title": "EPISODE",
-      "navLabel": null,
-      "nav": false,
-      "tagline": "Our media team produces the podcast, videos, and posts that document everything we do.",
-      "summary": "Podcast, video, and social media for the organization.",
-      "type": "team",
-      "list": null,
-      "listLabel": null,
-      "category": "Media",
-      "tags": [
-        "podcast",
-        "video",
-        "social"
-      ],
-      "order": 30,
-      "accent": "#ffbe0b",
-      "logo": null,
-      "postsLabel": null,
-      "media": [],
-      "source": "PAGES/EPISODE/page.md",
-      "sections": [
-        "about",
-        "what-we-do",
-        "contact"
-      ],
-      "words": 56,
-      "empty": false,
-      "published": true,
-      "updated": "2026-09-25"
-    },
-    {
-      "slug": "events",
-      "title": "Events",
-      "navLabel": "Events",
-      "nav": true,
-      "tagline": "Meetings, trainings, and events.",
-      "summary": "Meetings, trainings, and events.",
-      "type": "index",
-      "list": "event",
-      "listLabel": "All events",
-      "category": null,
-      "tags": [],
-      "order": 40,
-      "accent": null,
-      "logo": null,
-      "postsLabel": null,
-      "media": [],
-      "source": "PAGES/EVENTS/page.md",
-      "sections": [
-        "adding-an-event"
-      ],
-      "words": 29,
-      "empty": false,
-      "published": true,
-      "updated": "2026-09-25"
-    },
-    {
       "slug": "events/general-meeting",
       "title": "General Meeting",
       "type": "event",
@@ -173,7 +63,7 @@
     {
       "slug": "home",
       "title": "Home",
-      "navLabel": "Home",
+      "navLabel": null,
       "nav": false,
       "tagline": "The largest cybersecurity student organization at UTSA.",
       "summary": "The largest cybersecurity student organization at UTSA.",
@@ -197,36 +87,40 @@
       "updated": "2026-09-25"
     },
     {
-      "slug": "order404",
-      "title": "Order404",
+      "slug": "people/adithyaa-sivamal",
+      "title": "Adithyaa Sivamal",
       "navLabel": null,
       "nav": false,
-      "tagline": null,
-      "summary": null,
-      "type": "team",
+      "tagline": "CWNS Assistant Lead for the Cyber Warfare and National Security research group.",
+      "summary": "CWNS Assistant Lead for the Cyber Warfare and National Security research group.",
+      "type": "staff",
       "list": null,
       "listLabel": null,
-      "category": "Creative",
+      "category": "Research",
       "tags": [
-        "creative",
-        "media"
+        "cwns",
+        "research"
       ],
-      "order": 40,
-      "accent": "#fb5607",
+      "order": 12,
+      "accent": "#8338ec",
       "logo": null,
       "postsLabel": null,
       "media": [],
-      "source": "PAGES/ORDER404/page.md",
-      "sections": [],
-      "words": 0,
-      "empty": true,
-      "published": false,
+      "source": "PAGES/PEOPLE/adithyaa-sivamal/page.md",
+      "sections": [
+        "role",
+        "bio",
+        "contact"
+      ],
+      "words": 31,
+      "empty": false,
+      "published": true,
       "updated": "2026-09-25"
     },
     {
       "slug": "people/ana-moreno",
       "title": "Ana Moreno",
-      "navLabel": "Ana Moreno",
+      "navLabel": null,
       "nav": false,
       "tagline": "Marketing officer and Order404 member, filming and editing for the organization.",
       "summary": "Marketing officer and Order404 member, filming and editing for the organization.",
@@ -239,7 +133,7 @@
         "order404",
         "video"
       ],
-      "order": 10,
+      "order": 20,
       "accent": "#ff006e",
       "logo": "PAGES/PEOPLE/ana-moreno/media/headshot.jpg",
       "postsLabel": null,
@@ -265,27 +159,94 @@
       "updated": "2026-09-25"
     },
     {
-      "slug": "research",
-      "title": "Research",
-      "navLabel": "Research",
+      "slug": "people/gabriel-green",
+      "title": "Gabriel Green",
+      "navLabel": null,
       "nav": false,
-      "tagline": "The research groups where we go deep on a subfield.",
-      "summary": "The research groups where we go deep on a subfield.",
-      "type": "index",
-      "list": "team",
-      "listLabel": "Research groups",
-      "category": null,
-      "tags": [],
-      "order": 15,
-      "accent": null,
+      "tagline": "CWNS Lead for the Cyber Warfare and National Security research group.",
+      "summary": "CWNS Lead for the Cyber Warfare and National Security research group.",
+      "type": "staff",
+      "list": null,
+      "listLabel": null,
+      "category": "Research",
+      "tags": [
+        "cwns",
+        "research"
+      ],
+      "order": 11,
+      "accent": "#8338ec",
       "logo": null,
       "postsLabel": null,
       "media": [],
-      "source": "PAGES/RESEARCH/page.md",
+      "source": "PAGES/PEOPLE/gabriel-green/page.md",
       "sections": [
-        "about-research"
+        "role",
+        "bio",
+        "contact"
       ],
-      "words": 40,
+      "words": 33,
+      "empty": false,
+      "published": true,
+      "updated": "2026-09-25"
+    },
+    {
+      "slug": "people/hondo-limon",
+      "title": "Hondo Limon",
+      "navLabel": null,
+      "nav": false,
+      "tagline": "CWNS Lead for the Cyber Warfare and National Security research group.",
+      "summary": "CWNS Lead for the Cyber Warfare and National Security research group.",
+      "type": "staff",
+      "list": null,
+      "listLabel": null,
+      "category": "Research",
+      "tags": [
+        "cwns",
+        "research"
+      ],
+      "order": 10,
+      "accent": "#8338ec",
+      "logo": null,
+      "postsLabel": null,
+      "media": [],
+      "source": "PAGES/PEOPLE/hondo-limon/page.md",
+      "sections": [
+        "role",
+        "bio",
+        "contact"
+      ],
+      "words": 33,
+      "empty": false,
+      "published": true,
+      "updated": "2026-09-25"
+    },
+    {
+      "slug": "people/vincent",
+      "title": "Vincent",
+      "navLabel": null,
+      "nav": false,
+      "tagline": "Marketing officer and member of Order404.",
+      "summary": "Marketing officer and member of Order404.",
+      "type": "staff",
+      "list": null,
+      "listLabel": null,
+      "category": "Marketing",
+      "tags": [
+        "marketing",
+        "order404"
+      ],
+      "order": 21,
+      "accent": "#ff006e",
+      "logo": null,
+      "postsLabel": null,
+      "media": [],
+      "source": "PAGES/PEOPLE/vincent/page.md",
+      "sections": [
+        "role",
+        "bio",
+        "contact"
+      ],
+      "words": 37,
       "empty": false,
       "published": true,
       "updated": "2026-09-25"
@@ -337,7 +298,119 @@
       "sections": [
         "how-teams-work"
       ],
-      "words": 38,
+      "words": 37,
+      "empty": false,
+      "published": true,
+      "updated": "2026-09-25"
+    },
+    {
+      "slug": "teams/cwns",
+      "title": "Cyber Warfare and National Security",
+      "navLabel": null,
+      "nav": false,
+      "tagline": "We are a research group focused heavily on cybersecurity within the context of warfare.",
+      "summary": "Offensive security, malware analysis, and digital forensics in the context of modern conflict.",
+      "type": "team",
+      "list": null,
+      "listLabel": null,
+      "category": "Research",
+      "tags": [
+        "cyber warfare",
+        "malware",
+        "forensics"
+      ],
+      "order": 20,
+      "accent": "#8338ec",
+      "logo": null,
+      "postsLabel": "Research updates",
+      "media": [
+        {
+          "file": "PAGES/TEAMS/CWNS/media/6E97D597-3DA3-4FA1-BA39-5D969F4FF166.jpg",
+          "name": "6E97D597-3DA3-4FA1-BA39-5D969F4FF166.jpg",
+          "bytes": 3371222
+        },
+        {
+          "file": "PAGES/TEAMS/CWNS/media/98D5852A-420C-4C4D-AAE6-7359E1A4F566.jpg",
+          "name": "98D5852A-420C-4C4D-AAE6-7359E1A4F566.jpg",
+          "bytes": 2104161
+        },
+        {
+          "file": "PAGES/TEAMS/CWNS/media/IMG_5192.jpg",
+          "name": "IMG_5192.jpg",
+          "bytes": 196887
+        }
+      ],
+      "source": "PAGES/TEAMS/CWNS/page.md",
+      "sections": [
+        "about",
+        "gallery",
+        "mission",
+        "what-we-do",
+        "team",
+        "schedule",
+        "contact"
+      ],
+      "words": 180,
+      "empty": false,
+      "published": true,
+      "updated": "2026-09-25"
+    },
+    {
+      "slug": "teams/order404",
+      "title": "Order404",
+      "navLabel": null,
+      "nav": false,
+      "tagline": null,
+      "summary": null,
+      "type": "team",
+      "list": null,
+      "listLabel": null,
+      "category": "Creative",
+      "tags": [
+        "creative",
+        "media"
+      ],
+      "order": 40,
+      "accent": "#fb5607",
+      "logo": null,
+      "postsLabel": null,
+      "media": [],
+      "source": "PAGES/TEAMS/ORDER404/page.md",
+      "sections": [],
+      "words": 0,
+      "empty": true,
+      "published": false,
+      "updated": "2026-09-25"
+    },
+    {
+      "slug": "teams/quantum",
+      "title": "Quantum Cryptography",
+      "navLabel": null,
+      "nav": false,
+      "tagline": "A research group working on quantum and post-quantum cryptography.",
+      "summary": "Quantum key distribution protocols and the post-quantum replacements for what they threaten.",
+      "type": "team",
+      "list": null,
+      "listLabel": null,
+      "category": "Research",
+      "tags": [
+        "quantum",
+        "post-quantum",
+        "cryptography"
+      ],
+      "order": 25,
+      "accent": "#3a86ff",
+      "logo": null,
+      "postsLabel": "Research updates",
+      "media": [],
+      "source": "PAGES/TEAMS/QUANTUM/page.md",
+      "sections": [
+        "about",
+        "what-we-do",
+        "schedule",
+        "contact"
+      ],
+      "words": 87,
       "empty": false,
       "published": true,
       "updated": "2026-09-25"
@@ -346,39 +419,30 @@
   "posts": [
     {
       "id": "CWPost_001",
-      "page": "cwns",
+      "page": "teams/cwns",
       "title": "Cyber Warfare Report",
       "date": "2026-08-22",
       "group": "research",
-      "source": "PAGES/CWNS/posts/CWPost_001.md",
+      "source": "PAGES/TEAMS/CWNS/posts/CWPost_001.md",
       "summary": "Cyber Warfare Report Analysis on modern cyber warfare tactics and defense mechanisms."
     },
     {
       "id": "QPost_001",
-      "page": "cwns",
+      "page": "teams/quantum",
       "title": "Quantum Cryptography Update 1",
       "date": "2026-08-15",
       "group": "research",
-      "source": "PAGES/CWNS/posts/QPost_001.md",
+      "source": "PAGES/TEAMS/QUANTUM/posts/QPost_001.md",
       "summary": "Quantum Cryptography Update 1 This is the first update on quantum cryptography research."
     },
     {
       "id": "QPost_002",
-      "page": "cwns",
+      "page": "teams/quantum",
       "title": "Post-Quantum Security Approaches",
       "date": "2026-08-29",
       "group": "research",
-      "source": "PAGES/CWNS/posts/QPost_002.md",
+      "source": "PAGES/TEAMS/QUANTUM/posts/QPost_002.md",
       "summary": "Post-Quantum Security Approaches A second update on the research of post-quantum security measures."
-    },
-    {
-      "id": "blogcard-example",
-      "page": "episode",
-      "title": "Welcome to EPISODE",
-      "date": "2026-08-30",
-      "group": "media",
-      "source": "PAGES/EPISODE/posts/blogcard-example.md",
-      "summary": "This is an example blog post showcasing our team's recent activities."
     }
   ]
 }

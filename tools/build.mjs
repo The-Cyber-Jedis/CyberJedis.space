@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const PAGES_DIR = path.join(ROOT, "PAGES");
 const DATA_DIR = path.join(ROOT, "data");
-const POST_PAGE = "EPISODE";
+const SKIP_DIRS = new Set(["media", "posts"]);
 const IMAGE_RE = /\.(jpg|jpeg|png|gif|webp|avif|svg)$/i;
 
 const ACCENTS = {
@@ -151,7 +151,7 @@ async function readPage(pageDir) {
 const words = (s) => s.split(/\s+/).filter(Boolean).length;
 
 async function collectPosts(page) {
-  const dir = path.join(PAGES_DIR, page.slug.toUpperCase(), "posts");
+  const dir = path.join(PAGES_DIR, ...page.slug.split("/").map((s) => s.toUpperCase()), "posts");
   if (!existsSync(dir)) return [];
   const files = (await readdir(dir)).filter((f) => f.endsWith(".md")).sort();
   const posts = [];
@@ -224,21 +224,20 @@ async function collectCarousel() {
   return files.map((f) => `MEDIA/img/carousel/${f}`);
 }
 
-async function build() {
-  const pageDirs = (await readdir(PAGES_DIR, { withFileTypes: true }))
-    .filter((d) => d.isDirectory())
-    .map((d) => path.join(PAGES_DIR, d.name));
-
-  const nested = [];
-  for (const dir of pageDirs) {
-    const sub = (await readdir(dir, { withFileTypes: true }))
-      .filter((d) => d.isDirectory())
-      .map((d) => path.join(dir, d.name));
-    nested.push(...sub);
+async function pageDirs(dir, depth = 0) {
+  const out = [];
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    if (SKIP_DIRS.has(entry.name.toLowerCase())) continue;
+    const full = path.join(dir, entry.name);
+    out.push(full, ...(await pageDirs(full, depth + 1)));
   }
+  return out;
+}
 
+async function build() {
   const pages = [];
-  for (const dir of [...pageDirs, ...nested]) {
+  for (const dir of await pageDirs(PAGES_DIR)) {
     if (existsSync(path.join(dir, "page.md"))) pages.push(await readPage(dir));
   }
 

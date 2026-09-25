@@ -113,7 +113,7 @@
     }
     if (body) blocks.push(body);
     if (show.events) {
-      blocks.push(section("Upcoming", "upcoming", eventList(events(show.events)), "events"));
+      blocks.push(section("Upcoming", "upcoming", eventList(events(show.events))));
     }
     if (show.staff) {
       const staff = byType("staff").slice(0, show.staff);

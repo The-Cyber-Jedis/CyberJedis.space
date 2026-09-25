@@ -1,8 +1,8 @@
 ---
 title: Cyber Warfare and National Security
-navLabel: CWNS
 type: team
 order: 20
+postsLabel: Research updates
 category: Research
 tagline: We are a research group focused heavily on cybersecurity within the context of warfare.
 summary: Offensive security, malware analysis, and digital forensics in the context of modern conflict.
@@ -47,6 +47,8 @@ Our research group specializes in hands-on training, including topics such as:
 - **Hondo Limon** - CWNS Lead
 - **Gabriel Green** - CWNS Lead
 - **Adithyaa Sivamal** - CWNS Assistant Lead
+
+All three are listed on the staff page.
 
 ## Schedule
 
