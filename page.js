@@ -17,7 +17,7 @@
     try {
       await CJ.loadManifest();
       const stub = CJ.findPage(slug);
-      if (!stub) return notFound(slug);
+      if (!stub) return notFound();
       entry = await CJ.loadEntry(stub);
     } catch (err) {
       return failure(err);
@@ -28,7 +28,7 @@
 
     const parts = [CJ.hero(entry)];
     if (entry.empty) {
-      parts.push(CJ.emptyState(entry));
+      parts.push(CJ.emptyState());
     } else {
       parts.push(CJ.renderBody(entry));
       parts.push(await CJ.postsBlock(entry.slug, entry.postsLabel));
@@ -42,7 +42,7 @@
     if (entry.published === false) main.classList.add("cj-unpublished");
   }
 
-  function notFound(slug) {
+  function notFound() {
     setTitle("Page not found");
     CJ.mountShell("");
     main.innerHTML = `
@@ -50,7 +50,7 @@
         <div class="container">
           <p class="cj-eyebrow">404</p>
           <h1>Page not found</h1>
-          <p class="cj-hero-lede">No page is registered at <code>${CJ.esc(slug)}</code>.</p>
+          <p class="cj-hero-lede">That address does not match a page on this site.</p>
           <div class="d-flex flex-wrap gap-2 mt-4">
             <a class="btn btn-jedis btn-lg" href="index.html">Home</a>
             <a class="btn btn-outline-jedis btn-lg" href="${CJ.pageUrl("teams")}">Teams</a>
@@ -61,12 +61,12 @@
   }
 
   function failure(err) {
-    setTitle("Build required");
+    setTitle("Something went wrong");
     main.innerHTML = `
       <div class="container">
         <section class="cj-block">
           <div class="cj-empty">
-            <h2>Build required</h2>
+            <h2>Something went wrong</h2>
             <p class="mb-0">${CJ.esc(err.message)}</p>
           </div>
         </section>

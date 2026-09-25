@@ -1,6 +1,8 @@
 ---
 title: Cyber Warfare and National Security
+navLabel: CWNS
 type: team
+kind: Research group
 order: 20
 postsLabel: Research updates
 category: Research
@@ -12,16 +14,17 @@ schedule: Wed and Thu 6:30 PM, NPB 1.202
 links:
   discord: https://discord.gg/sthbyPkDRx
 ---
+
 ## About
 
 Our main focus is how computing systems are used by nation states to
-conduct warfare operations. Our trainings tend to go into several
-aspects of the field, ranging from which nations are involved, to the
-kinds of malware used, and even what is affected physically.
+conduct warfare operations. Our trainings cover several aspects of the
+field, from which nations are involved, to the kinds of malware used, to
+what gets hit physically.
 
-Some focuses of our rig include:
+Areas the group covers:
 
-- Tactics, techniques, and procedures used by APTs
+- Tactics, techniques, and procedures used by advanced persistent threats
 - Offensive security and malware analysis
 - Incident response and digital forensics
 
@@ -29,14 +32,14 @@ Some focuses of our rig include:
 
 ## Mission
 
-We hope to prepare our students to understand the signs of an ongoing
-cyberattack and be able to respond promptly. We want to ensure they know
-the risks our nation's industries and military faces as cyberspace
-continues to evolve.
+We want students to be able to recognize the signs of an ongoing
+cyberattack and respond to it promptly, and to understand the risks our
+nation's industries and military face as cyberspace keeps changing.
 
 ## What We Do
 
-Our research group specializes in hands-on training, including topics such as:
+Our research group specializes in hands-on training, including topics such
+as:
 
 - Live fire exercises
 - Case studies
@@ -47,8 +50,6 @@ Our research group specializes in hands-on training, including topics such as:
 - **Hondo Limon** - CWNS Lead
 - **Gabriel Green** - CWNS Lead
 - **Adithyaa Sivamal** - CWNS Assistant Lead
-
-All three are listed on the staff page.
 
 ## Schedule
 

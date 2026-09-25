@@ -1,6 +1,7 @@
 ---
 title: Order404
 type: team
+kind: Project team
 order: 40
 category: Creative
 tagline: Cybersecurity, creativity, and controlled chaos.

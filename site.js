@@ -86,7 +86,7 @@ const CJ = (() => {
   async function loadManifest() {
     if (state.manifest) return state.manifest;
     const res = await fetch("data/manifest.json", { cache: "no-cache" });
-    if (!res.ok) throw new Error("manifest missing, run: node tools/build.mjs");
+    if (!res.ok) throw new Error("The site could not load its content. Please try again in a moment.");
     state.manifest = await res.json();
     return state.manifest;
   }
@@ -155,7 +155,7 @@ const CJ = (() => {
 
   async function loadEntry(entry) {
     const res = await fetch(entry.source, { cache: "no-cache" });
-    if (!res.ok) throw new Error(`missing source: ${entry.source}`);
+    if (!res.ok) throw new Error("This page could not be loaded. Please try again in a moment.");
     const { data, body } = parseFrontmatter(await res.text());
     return { ...entry, meta: { ...entry, ...data }, body };
   }
@@ -262,8 +262,17 @@ const CJ = (() => {
     return items ? `<div class="d-flex flex-wrap gap-2 mt-4">\n        ${items}\n      </div>` : "";
   }
 
+  function kindOf(entry) {
+    if (entry?.kind) return entry.kind;
+    if (entry?.type === "event") return "Event";
+    if (entry?.type === "team") return "Team";
+    if (entry?.type === "staff") return "Staff";
+    return "";
+  }
+
   function hero(entry) {
     const accent = accentOf(entry);
+    const kind = kindOf(entry);
     const mark = entry.logo
       ? `<img class="cj-hero-mark" src="${esc(entry.logoSm || entry.logo)}" alt="${esc(entry.title)} logo" decoding="async">`
       : "";
@@ -277,9 +286,7 @@ const CJ = (() => {
           <div class="row align-items-center g-4">
             ${mark ? `<div class="col-auto">${mark}</div>` : ""}
             <div class="${mark ? "col" : "col-12"}">
-              <p class="cj-eyebrow">${esc(
-                entry.type === "staff" ? "Staff" : entry.type === "index" ? "Index" : entry.type === "event" ? "Event" : "Team"
-              )}</p>
+              ${kind ? `<p class="cj-eyebrow">${esc(kind)}</p>` : ""}
               <h1>${esc(entry.title)}</h1>
               ${entry.tagline ? `<p class="cj-hero-lede">${esc(entry.tagline)}</p>` : ""}
               ${meta.length ? `<div class="cj-hero-meta">${meta.join("")}</div>` : ""}
@@ -488,10 +495,8 @@ const CJ = (() => {
     if (entry.people) {
       const people = state.manifest?.people || [];
       blocks.unshift(
-        `<section class="cj-block"><div class="cj-block-head"><h2 class="cj-block-title">People</h2>` +
-          `<span class="cj-more">${people.length} entries</span></div>${peopleGrid(people, {
-            empty: "No staff listed yet."
-          })}</section>`
+        `<section class="cj-block"><div class="cj-block-head"><h2 class="cj-block-title">People</h2></div>` +
+          `${peopleGrid(people, { empty: "No staff listed yet." })}</section>`
       );
       const notes = people
         .map((p) => (p.note ? `<article class="cj-post"><p class="cj-post-kind">${esc(p.name)}</p><p class="mb-0">${esc(p.note)}</p></article>` : ""))
@@ -519,14 +524,12 @@ const CJ = (() => {
     });
   }
 
-  function emptyState(entry) {
+  function emptyState() {
     return `
       <section class="cj-block">
         <div class="cj-empty">
-          <h2>Content needed</h2>
-          <p class="mb-0">This page exists but has no published content yet. Copy <code>TEMPLATES/WEBPAGE_TEMPLATE.md</code> into <code>PAGES/${esc(
-            entry.slug.toUpperCase()
-          )}/page.md</code>, then run <code>node tools/build.mjs</code>.</p>
+          <h2>Coming soon</h2>
+          <p class="mb-0">This page is still being put together. Check back soon, or reach out on Discord if you want to know more.</p>
         </div>
       </section>`;
   }

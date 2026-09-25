@@ -4,6 +4,7 @@ navLabel: Staff
 nav: true
 type: page
 order: 20
+kind: The team
 accent: violet
 people: true
 tagline: The students who keep the organization running.

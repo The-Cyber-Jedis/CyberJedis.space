@@ -4,8 +4,6 @@ date: 2026-08-22
 group: research
 ---
 
-Cyber Warfare Report
-
 Analysis on modern cyber warfare tactics and defense mechanisms.
 
 1. Analysis

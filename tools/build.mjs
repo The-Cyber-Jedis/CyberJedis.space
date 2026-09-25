@@ -203,6 +203,7 @@ async function readPage(pageDir) {
   return {
     slug,
     title,
+    kind: data.kind || null,
     navLabel: data.navLabel || null,
     nav: Boolean(data.nav),
     tagline: data.tagline || firstSentence(body) || null,
@@ -276,7 +277,8 @@ async function collectEvents() {
       endDate: data.endDate ? String(data.endDate) : null,
       time: when,
       location: where,
-      kind: data.kind || "meeting",
+      kind: null,
+      category: data.category || "meeting",
       tagline: [data.recurring ? `Every ${data.recurring}` : data.date, when, where]
         .filter(Boolean)
         .join(" | "),

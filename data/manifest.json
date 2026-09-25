@@ -26,6 +26,7 @@
     {
       "slug": "connect",
       "title": "Connect",
+      "kind": "Contact",
       "navLabel": "Connect",
       "nav": true,
       "tagline": "Find us, join us, follow along.",
@@ -46,10 +47,11 @@
       "dir": "PAGES/CONNECT",
       "sections": [
         "come-to-a-meeting",
-        "follow-the-journey",
-        "get-in-touch"
+        "where-to-find-us",
+        "how-to-reach-us",
+        "office-hours"
       ],
-      "words": 89,
+      "words": 172,
       "empty": false,
       "published": true,
       "updated": "2026-09-25"
@@ -63,19 +65,20 @@
       "endDate": null,
       "time": "6:00 PM",
       "location": "NPB 1.226",
-      "kind": "meeting",
+      "kind": null,
+      "category": "Meeting",
       "tagline": "2026-09-25 | 6:00 PM | NPB 1.226",
-      "summary": "General Meeting, 6PM every Friday.",
+      "summary": "Every Friday at 6:00 PM, all teams check in, we share what is coming up, and new members get walked through how to join.",
       "accent": "#ffbe0b",
       "order": 1000,
       "media": [],
       "source": "PAGES/EVENTS/general-meeting.md",
       "dir": "PAGES/EVENTS",
       "sections": [
-        "time-place",
+        "time-and-place",
         "details"
       ],
-      "words": 41,
+      "words": 64,
       "empty": false,
       "published": true,
       "updated": "2026-09-25"
@@ -83,7 +86,8 @@
     {
       "slug": "home",
       "title": "Home",
-      "navLabel": null,
+      "kind": null,
+      "navLabel": "Home",
       "nav": false,
       "tagline": "The largest cybersecurity student organization at UTSA.",
       "summary": "The largest cybersecurity student organization at UTSA.",
@@ -104,7 +108,7 @@
       "sections": [
         "about-our-mission"
       ],
-      "words": 80,
+      "words": 86,
       "empty": false,
       "published": true,
       "updated": "2026-09-25"
@@ -112,6 +116,7 @@
     {
       "slug": "staff",
       "title": "Staff",
+      "kind": "The team",
       "navLabel": "Staff",
       "nav": true,
       "tagline": "The students who keep the organization running.",
@@ -177,6 +182,7 @@
     {
       "slug": "teams",
       "title": "Teams",
+      "kind": "What we run",
       "navLabel": "Teams",
       "nav": true,
       "tagline": "Every team and research group in the organization.",
@@ -196,9 +202,9 @@
       "source": "PAGES/TEAMS/page.md",
       "dir": "PAGES/TEAMS",
       "sections": [
-        "how-teams-work"
+        "how-we-are-organized"
       ],
-      "words": 37,
+      "words": 124,
       "empty": false,
       "published": true,
       "updated": "2026-09-25"
@@ -206,7 +212,8 @@
     {
       "slug": "teams/cwns",
       "title": "Cyber Warfare and National Security",
-      "navLabel": null,
+      "kind": "Research group",
+      "navLabel": "CWNS",
       "nav": false,
       "tagline": "We are a research group focused heavily on cybersecurity within the context of warfare.",
       "summary": "Offensive security, malware analysis, and digital forensics in the context of modern conflict.",
@@ -271,7 +278,7 @@
         "schedule",
         "contact"
       ],
-      "words": 180,
+      "words": 162,
       "empty": false,
       "published": true,
       "updated": "2026-09-25"
@@ -279,6 +286,7 @@
     {
       "slug": "teams/order404",
       "title": "Order404",
+      "kind": "Project team",
       "navLabel": null,
       "nav": false,
       "tagline": "Cybersecurity, creativity, and controlled chaos.",
@@ -311,7 +319,8 @@
     {
       "slug": "teams/quantum",
       "title": "Quantum Cryptography",
-      "navLabel": null,
+      "kind": "Research group",
+      "navLabel": "Quantum",
       "nav": false,
       "tagline": "A research group working on quantum and post-quantum cryptography.",
       "summary": "Quantum key distribution protocols and the post-quantum replacements for what they threaten.",
@@ -335,11 +344,13 @@
       "dir": "PAGES/TEAMS/QUANTUM",
       "sections": [
         "about",
+        "mission",
         "what-we-do",
+        "team",
         "schedule",
         "contact"
       ],
-      "words": 87,
+      "words": 148,
       "empty": false,
       "published": true,
       "updated": "2026-09-25"
@@ -440,7 +451,7 @@
       "date": "2026-08-22",
       "group": "research",
       "source": "PAGES/TEAMS/CWNS/posts/CWPost_001.md",
-      "summary": "Cyber Warfare Report Analysis on modern cyber warfare tactics and defense mechanisms."
+      "summary": "Analysis on modern cyber warfare tactics and defense mechanisms."
     },
     {
       "id": "QPost_001",
@@ -450,7 +461,7 @@
       "date": "2026-08-15",
       "group": "research",
       "source": "PAGES/TEAMS/QUANTUM/posts/QPost_001.md",
-      "summary": "Quantum Cryptography Update 1 This is the first update on quantum cryptography research."
+      "summary": "This is the first update on quantum cryptography research."
     },
     {
       "id": "QPost_002",
@@ -460,7 +471,7 @@
       "date": "2026-08-29",
       "group": "research",
       "source": "PAGES/TEAMS/QUANTUM/posts/QPost_002.md",
-      "summary": "Post-Quantum Security Approaches A second update on the research of post-quantum security measures."
+      "summary": "A second update on the research of post-quantum security measures."
     }
   ]
 }
