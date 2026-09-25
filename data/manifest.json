@@ -1,10 +1,26 @@
 {
   "generated": "2026-09-25",
   "carousel": [
-    "MEDIA/img/carousel/0.png",
-    "MEDIA/img/carousel/1.png",
-    "MEDIA/img/carousel/2.png",
-    "MEDIA/img/carousel/3.png"
+    {
+      "file": "MEDIA/img/carousel/0.png",
+      "lg": "MEDIA/img/carousel/thumbs/0.jpg",
+      "sm": "MEDIA/img/carousel/thumbs/sm/0.jpg"
+    },
+    {
+      "file": "MEDIA/img/carousel/1.png",
+      "lg": "MEDIA/img/carousel/thumbs/1.jpg",
+      "sm": "MEDIA/img/carousel/thumbs/sm/1.jpg"
+    },
+    {
+      "file": "MEDIA/img/carousel/2.png",
+      "lg": "MEDIA/img/carousel/thumbs/2.jpg",
+      "sm": "MEDIA/img/carousel/thumbs/sm/2.jpg"
+    },
+    {
+      "file": "MEDIA/img/carousel/3.png",
+      "lg": "MEDIA/img/carousel/thumbs/3.jpg",
+      "sm": "MEDIA/img/carousel/thumbs/sm/3.jpg"
+    }
   ],
   "pages": [
     {
@@ -22,7 +38,9 @@
       "order": 30,
       "accent": null,
       "logo": null,
+      "logoSm": null,
       "postsLabel": null,
+      "people": false,
       "media": [],
       "source": "PAGES/CONNECT/page.md",
       "dir": "PAGES/CONNECT",
@@ -77,7 +95,9 @@
       "order": 1,
       "accent": null,
       "logo": null,
+      "logoSm": null,
       "postsLabel": null,
+      "people": false,
       "media": [],
       "source": "PAGES/HOME/page.md",
       "dir": "PAGES/HOME",
@@ -104,33 +124,52 @@
       "order": 20,
       "accent": "#8338ec",
       "logo": null,
+      "logoSm": null,
       "postsLabel": null,
+      "people": true,
       "media": [
         {
           "file": "PAGES/STAFF/media/ana.png",
           "name": "ana.png",
-          "bytes": 2208604
+          "bytes": 2208604,
+          "lg": "PAGES/STAFF/media/thumbs/ana.jpg",
+          "sm": "PAGES/STAFF/media/thumbs/sm/ana.jpg",
+          "width": 1080,
+          "height": 1350,
+          "widthSm": 448,
+          "heightSm": 560
         },
         {
           "file": "PAGES/STAFF/media/hondo.png",
           "name": "hondo.png",
-          "bytes": 2806506
+          "bytes": 2806506,
+          "lg": "PAGES/STAFF/media/thumbs/hondo.jpg",
+          "sm": "PAGES/STAFF/media/thumbs/sm/hondo.jpg",
+          "width": 1080,
+          "height": 1350,
+          "widthSm": 448,
+          "heightSm": 560
         },
         {
           "file": "PAGES/STAFF/media/keeban.png",
           "name": "keeban.png",
-          "bytes": 1448936
+          "bytes": 1448936,
+          "lg": "PAGES/STAFF/media/thumbs/keeban.jpg",
+          "sm": "PAGES/STAFF/media/thumbs/sm/keeban.jpg",
+          "width": 1310,
+          "height": 1310,
+          "widthSm": 560,
+          "heightSm": 560
         }
       ],
       "source": "PAGES/STAFF/page.md",
       "dir": "PAGES/STAFF",
       "sections": [
-        "people",
         "roles",
         "about-ana",
         "get-involved"
       ],
-      "words": 273,
+      "words": 179,
       "empty": false,
       "published": true,
       "updated": "2026-09-25"
@@ -150,7 +189,9 @@
       "order": 10,
       "accent": null,
       "logo": null,
+      "logoSm": null,
       "postsLabel": null,
+      "people": false,
       "media": [],
       "source": "PAGES/TEAMS/page.md",
       "dir": "PAGES/TEAMS",
@@ -181,22 +222,42 @@
       "order": 20,
       "accent": "#8338ec",
       "logo": null,
+      "logoSm": null,
       "postsLabel": "Research updates",
+      "people": false,
       "media": [
         {
           "file": "PAGES/TEAMS/CWNS/media/6E97D597-3DA3-4FA1-BA39-5D969F4FF166.jpg",
           "name": "6E97D597-3DA3-4FA1-BA39-5D969F4FF166.jpg",
-          "bytes": 3371222
+          "bytes": 3371222,
+          "lg": "PAGES/TEAMS/CWNS/media/thumbs/6E97D597-3DA3-4FA1-BA39-5D969F4FF166.jpg",
+          "sm": "PAGES/TEAMS/CWNS/media/thumbs/sm/6E97D597-3DA3-4FA1-BA39-5D969F4FF166.jpg",
+          "width": 1400,
+          "height": 1050,
+          "widthSm": 560,
+          "heightSm": 420
         },
         {
           "file": "PAGES/TEAMS/CWNS/media/98D5852A-420C-4C4D-AAE6-7359E1A4F566.jpg",
           "name": "98D5852A-420C-4C4D-AAE6-7359E1A4F566.jpg",
-          "bytes": 2104161
+          "bytes": 2104161,
+          "lg": "PAGES/TEAMS/CWNS/media/thumbs/98D5852A-420C-4C4D-AAE6-7359E1A4F566.jpg",
+          "sm": "PAGES/TEAMS/CWNS/media/thumbs/sm/98D5852A-420C-4C4D-AAE6-7359E1A4F566.jpg",
+          "width": 1050,
+          "height": 1400,
+          "widthSm": 420,
+          "heightSm": 560
         },
         {
           "file": "PAGES/TEAMS/CWNS/media/IMG_5192.jpg",
           "name": "IMG_5192.jpg",
-          "bytes": 196887
+          "bytes": 196887,
+          "lg": "PAGES/TEAMS/CWNS/media/thumbs/IMG_5192.jpg",
+          "sm": "PAGES/TEAMS/CWNS/media/thumbs/sm/IMG_5192.jpg",
+          "width": 1400,
+          "height": 946,
+          "widthSm": 560,
+          "heightSm": 378
         }
       ],
       "source": "PAGES/TEAMS/CWNS/page.md",
@@ -232,8 +293,10 @@
       ],
       "order": 40,
       "accent": "#fb5607",
-      "logo": "PAGES/TEAMS/ORDER404/media/logo.png",
+      "logo": "PAGES/TEAMS/ORDER404/media/thumbs/logo.jpg",
+      "logoSm": "PAGES/TEAMS/ORDER404/media/thumbs/sm/logo.jpg",
       "postsLabel": null,
+      "people": false,
       "media": [],
       "source": "PAGES/TEAMS/ORDER404/page.md",
       "dir": "PAGES/TEAMS/ORDER404",
@@ -264,7 +327,9 @@
       "order": 25,
       "accent": "#3a86ff",
       "logo": null,
+      "logoSm": null,
       "postsLabel": "Research updates",
+      "people": false,
       "media": [],
       "source": "PAGES/TEAMS/QUANTUM/page.md",
       "dir": "PAGES/TEAMS/QUANTUM",
@@ -278,6 +343,92 @@
       "empty": false,
       "published": true,
       "updated": "2026-09-25"
+    }
+  ],
+  "people": [
+    {
+      "slug": "keeban",
+      "page": "staff",
+      "name": "Keeban Villareal",
+      "role": "President",
+      "order": 1,
+      "tags": [],
+      "accent": null,
+      "photo": "PAGES/STAFF/media/thumbs/sm/keeban.jpg",
+      "widthSm": 560,
+      "heightSm": 560,
+      "note": null,
+      "source": "PAGES/STAFF/people/keeban.md"
+    },
+    {
+      "slug": "hondo",
+      "page": "staff",
+      "name": "Hondo Limon",
+      "role": "CWNS Lead",
+      "order": 10,
+      "tags": [],
+      "accent": null,
+      "photo": "PAGES/STAFF/media/thumbs/sm/hondo.jpg",
+      "widthSm": 448,
+      "heightSm": 560,
+      "note": null,
+      "source": "PAGES/STAFF/people/hondo.md"
+    },
+    {
+      "slug": "gabriel",
+      "page": "staff",
+      "name": "Gabriel Green",
+      "role": "CWNS Lead",
+      "order": 11,
+      "tags": [],
+      "accent": null,
+      "photo": null,
+      "widthSm": null,
+      "heightSm": null,
+      "note": null,
+      "source": "PAGES/STAFF/people/gabriel.md"
+    },
+    {
+      "slug": "adithyaa",
+      "page": "staff",
+      "name": "Adithyaa Sivamal",
+      "role": "CWNS Assistant Lead",
+      "order": 12,
+      "tags": [],
+      "accent": null,
+      "photo": null,
+      "widthSm": null,
+      "heightSm": null,
+      "note": null,
+      "source": "PAGES/STAFF/people/adithyaa.md"
+    },
+    {
+      "slug": "vincent",
+      "page": "staff",
+      "name": "Vincent",
+      "role": "Order404 Director, marketing officer",
+      "order": 20,
+      "tags": [],
+      "accent": null,
+      "photo": null,
+      "widthSm": null,
+      "heightSm": null,
+      "note": null,
+      "source": "PAGES/STAFF/people/vincent.md"
+    },
+    {
+      "slug": "ana",
+      "page": "staff",
+      "name": "Ana Moreno",
+      "role": "Marketing officer, Order404 editor",
+      "order": 21,
+      "tags": [],
+      "accent": null,
+      "photo": "PAGES/STAFF/media/thumbs/sm/ana.jpg",
+      "widthSm": 448,
+      "heightSm": 560,
+      "note": null,
+      "source": "PAGES/STAFF/people/ana.md"
     }
   ],
   "posts": [

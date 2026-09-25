@@ -5,44 +5,10 @@ nav: true
 type: page
 order: 20
 accent: violet
+people: true
 tagline: The students who keep the organization running.
 summary: The students who keep the organization running.
 ---
-
-## People
-
-<ul class="people">
-  <li class="person">
-    <img class="person-photo" src="media/keeban.png" alt="Keeban Villareal" width="1310" height="1310">
-    <p class="person-name">Keeban Villareal</p>
-    <p class="person-role">President</p>
-  </li>
-  <li class="person">
-    <img class="person-photo" src="media/hondo.png" alt="Hondo Limon" width="1080" height="1350">
-    <p class="person-name">Hondo Limon</p>
-    <p class="person-role">CWNS Lead</p>
-  </li>
-  <li class="person">
-    <p class="person-photo person-photo-empty" aria-hidden="true"></p>
-    <p class="person-name">Gabriel Green</p>
-    <p class="person-role">CWNS Lead</p>
-  </li>
-  <li class="person">
-    <p class="person-photo person-photo-empty" aria-hidden="true"></p>
-    <p class="person-name">Adithyaa Sivamal</p>
-    <p class="person-role">CWNS Assistant Lead</p>
-  </li>
-  <li class="person">
-    <p class="person-photo person-photo-empty" aria-hidden="true"></p>
-    <p class="person-name">Vincent</p>
-    <p class="person-role">Order404 Director, marketing officer</p>
-  </li>
-  <li class="person">
-    <img class="person-photo" src="media/ana.png" alt="Ana Moreno" width="1080" height="1350">
-    <p class="person-name">Ana Moreno</p>
-    <p class="person-role">Marketing officer, Order404 editor</p>
-  </li>
-</ul>
 
 ## Roles
 

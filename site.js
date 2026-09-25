@@ -35,8 +35,7 @@ const CJ = (() => {
         continue;
       }
       currentKey = key;
-      if (value === "") data[key] = {};
-      else data[key] = coerce(value);
+      data[key] = value === "" ? {} : coerce(value);
     }
     return { data, body: m[2] };
   }
@@ -51,9 +50,7 @@ const CJ = (() => {
     return value.replace(/^["']|["']$/g, "");
   }
 
-  function stripComments(md) {
-    return String(md == null ? "" : md).replace(/<!--[\s\S]*?-->/g, "");
-  }
+  const stripComments = (md) => String(md == null ? "" : md).replace(/<!--[\s\S]*?-->/g, "");
 
   function sanitize(html, base) {
     const tpl = document.createElement("div");
@@ -74,9 +71,11 @@ const CJ = (() => {
         n.setAttribute("rel", "noopener noreferrer");
       }
       if (n.tagName === "IMG") {
-        n.setAttribute("src", resolve(n.getAttribute("src"), base));
+        const src = n.getAttribute("src");
+        if (src) n.setAttribute("src", resolve(src, base));
         n.setAttribute("loading", "lazy");
         n.setAttribute("decoding", "async");
+        if (!n.getAttribute("class")) n.setAttribute("class", "img-fluid");
       }
     });
     return tpl.innerHTML;
@@ -94,9 +93,7 @@ const CJ = (() => {
 
   const pageUrl = (slug) => `page.html?p=${encodeURIComponent(slug)}`;
 
-  function findPage(slug) {
-    return (state.manifest?.pages || []).find((p) => p.slug === slug) || null;
-  }
+  const findPage = (slug) => (state.manifest?.pages || []).find((p) => p.slug === slug) || null;
 
   function accentOf(entry) {
     const accents = state.config?.theme?.accents || ["#c0c0c0"];
@@ -110,8 +107,28 @@ const CJ = (() => {
     return h;
   }
 
+  function initialsOf(name) {
+    const parts = String(name || "").trim().split(/\s+/).filter(Boolean);
+    if (!parts.length) return "?";
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+
+  function avatar(name, size = 400) {
+    const initials = initialsOf(name);
+    let seed = 0;
+    for (const ch of String(name || "")) seed = (seed * 31 + ch.charCodeAt(0)) % 360;
+    const svg =
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="${size}" height="${size}">` +
+      `<rect width="100" height="100" fill="hsl(${seed} 24% 88%)"/>` +
+      `<text x="50" y="50" fill="hsl(${seed} 30% 30%)" font-family="monospace" font-size="36" ` +
+      `font-weight="700" text-anchor="middle" dominant-baseline="central">${initials}</text></svg>`;
+    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg).replace(/'/g, "%27")}`;
+  }
+
   function splitSections(body) {
-    const clean = stripComments(body).replace(/\r/g, "");    const lines = clean.split("\n");
+    const clean = stripComments(body).replace(/\r/g, "");
+    const lines = clean.split("\n");
     const sections = [];
     let current = null;
     for (const line of lines) {
@@ -136,7 +153,8 @@ const CJ = (() => {
     return { lead: leadText, sections };
   }
 
-  async function loadEntry(entry) {    const res = await fetch(entry.source, { cache: "no-cache" });
+  async function loadEntry(entry) {
+    const res = await fetch(entry.source, { cache: "no-cache" });
     if (!res.ok) throw new Error(`missing source: ${entry.source}`);
     const { data, body } = parseFrontmatter(await res.text());
     return { ...entry, meta: { ...entry, ...data }, body };
@@ -148,140 +166,142 @@ const CJ = (() => {
       .sort((a, b) => (a.order ?? 100) - (b.order ?? 100) || a.title.localeCompare(b.title));
   }
 
-  function renderHeader(active) {
-    const c = state.config;
-    const home = `<li><a href="index.html"${active === "home" ? ' class="active" aria-current="page"' : ""}>Home</a></li>\n          `;
-    const links = navPages()
-      .filter((p) => p.slug !== "home")
-      .map((p) => {
-        const on = p.slug === active ? ' class="active" aria-current="page"' : "";
-        return `<li><a href="${pageUrl(p.slug)}"${on}>${esc(p.navLabel || p.title)}</a></li>`;
-      })
-      .join("\n          ");
-    return `
-      <a class="skip" href="#main">Skip to content</a>
-      <div class="brand">
-        <a class="brand-mark" href="index.html">
-          <span class="brand-text">${esc(c.siteName || "Cyber Jedis")}</span>
-          <span class="brand-tagline">${esc(c.siteTagline || "")}</span>
-        </a>
-        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav">Menu</button>
-      </div>
-      <nav id="primary-nav" class="nav" aria-label="Primary">
-        <ul class="nav-links">${home}${links}</ul>
-        <ul class="nav-social">${socialLinks()}</ul>
-      </nav>`;
-  }
-
   function socialLinks() {
     const meta = state.config?.socialMeta || {};
     return Object.entries(state.config?.socialLinks || {})
       .map(([key, url]) => {
         const m = meta[key] || {};
-        return `<li><a class="social-chip" href="${esc(url)}" style="--chip:${esc(m.color || "#c0c0c0")}" title="${esc(m.label || key)}">${esc((m.label || key).slice(0, 2).toUpperCase())}</a></li>`;
+        return (
+          `<li><a href="${esc(url)}" style="--cj-chip:${esc(m.color || "#c0c0c0")}" ` +
+          `title="${esc(m.label || key)}">${esc((m.label || key).slice(0, 2).toUpperCase())}</a></li>`
+        );
       })
       .join("\n          ");
+  }
+
+  function renderHeader(active) {
+    const c = state.config;
+    const home =
+      `<li class="nav-item"><a class="nav-link${active === "home" ? " active" : ""}" ` +
+      `href="index.html"${active === "home" ? ' aria-current="page"' : ""}>Home</a></li>`;
+    const links = navPages()
+      .filter((p) => p.slug !== "home")
+      .map((p) => {
+        const on = p.slug === active;
+        return (
+          `<li class="nav-item"><a class="nav-link${on ? " active" : ""}" href="${pageUrl(p.slug)}"` +
+          `${on ? ' aria-current="page"' : ""}>${esc(p.navLabel || p.title)}</a></li>`
+        );
+      })
+      .join("\n            ");
+    return `
+      <div class="container">
+        <a class="navbar-brand cj-brand" href="index.html">${esc(c.siteName || "Cyber Jedis")}<small>${esc(c.siteTagline || "")}</small></a>
+        <button class="cj-nav-toggler d-lg-none" type="button" data-bs-toggle="collapse"
+                data-bs-target="#cjNav" aria-controls="cjNav" aria-expanded="false" aria-label="Toggle navigation">Menu</button>
+        <div class="collapse navbar-collapse" id="cjNav">
+          <ul class="navbar-nav cj-nav ms-auto mb-3 mb-lg-0">
+            ${home}
+            ${links}
+          </ul>
+          <ul class="cj-social">${socialLinks()}</ul>
+        </div>
+      </div>`;
   }
 
   function renderFooter() {
     const c = state.config;
     const year = new Date().getFullYear();
+    const links = navPages()
+      .filter((p) => p.slug !== "home")
+      .map((p) => `<li><a href="${pageUrl(p.slug)}">${esc(p.navLabel || p.title)}</a></li>`)
+      .join("\n            ");
     return `
-      <div class="footer-grid">
-        <div>
-          <h2 class="footer-heading">${esc(c.siteName || "Cyber Jedis")}</h2>
-          <p class="footer-text">${esc(c.siteTagline || "")}</p>
-        </div>
-        <div>
-          <h2 class="footer-heading">Pages</h2>
-          <ul class="footer-links">
+      <div class="container">
+        <div class="row g-4">
+          <div class="col-12 col-md-5">
+            <h2>${esc(c.siteName || "Cyber Jedis")}</h2>
+            <p class="mb-0">${esc(c.siteTagline || "")}</p>
+          </div>
+          <div class="col-6 col-md-3">
+            <h2>Pages</h2>
+            <ul>
             <li><a href="index.html">Home</a></li>
-            ${navPages()
-              .filter((p) => p.slug !== "home")
-              .map((p) => `<li><a href="${pageUrl(p.slug)}">${esc(p.navLabel || p.title)}</a></li>`)
-              .join("\n            ")}
-          </ul>
+            ${links}
+            </ul>
+          </div>
+          <div class="col-6 col-md-4">
+            <h2>Follow</h2>
+            <ul class="cj-social">${socialLinks()}</ul>
+          </div>
         </div>
-        <div>
-          <h2 class="footer-heading">Follow</h2>
-          <ul class="nav-social">${socialLinks()}</ul>
-        </div>
-      </div>
-      <p class="footer-legal">&copy; ${year} ${esc(c.copyrightOwner || c.siteName || "")}</p>`;
+        <p class="mt-4 pt-3 mb-0" style="border-top:1px solid var(--cj-line)">
+          &copy; ${year} ${esc(c.copyrightOwner || c.siteName || "")}
+        </p>
+      </div>`;
   }
 
   function mountShell(active) {
     const header = document.getElementById("site-header");
     const footer = document.getElementById("site-footer");
     if (header) {
-      header.className = "site-header";
+      header.className = "cj-navbar navbar navbar-expand-lg";
       header.innerHTML = renderHeader(active);
-      const toggle = header.querySelector(".nav-toggle");
-      const nav = header.querySelector(".nav");
-      toggle?.addEventListener("click", () => {
-        const open = nav.classList.toggle("open");
-        toggle.setAttribute("aria-expanded", String(open));
-      });
     }
     if (footer) {
-      footer.className = "site-footer";
+      footer.className = "cj-footer";
       footer.innerHTML = renderFooter();
     }
-    document.documentElement.style.setProperty("--accent", accentOf({ slug: active }));
+  }
+
+  function linkRow(links) {
+    const items = Object.entries(links)
+      .filter(([k]) => k !== "logo")
+      .map(([k, v]) => `<a class="btn btn-outline-jedis btn-sm" href="${esc(v)}">${esc(k)}</a>`)
+      .join("\n        ");
+    return items ? `<div class="d-flex flex-wrap gap-2 mt-4">\n        ${items}\n      </div>` : "";
   }
 
   function hero(entry) {
     const accent = accentOf(entry);
-    const logo = entry.logo
-      ? `<img class="hero-logo" src="${esc(entry.logo)}" alt="${esc(entry.title)} logo" decoding="async">`
-      : `<span class="hero-mono" style="--accent:${accent}">${esc(initials(entry.title))}</span>`;
+    const mark = entry.logo
+      ? `<img class="cj-hero-mark" src="${esc(entry.logoSm || entry.logo)}" alt="${esc(entry.title)} logo" decoding="async">`
+      : "";
     const meta = [];
-    if (entry.category) meta.push(`<span class="badge">${esc(entry.category)}</span>`);
-    (entry.tags || []).forEach((t) => meta.push(`<span class="tag">${esc(t)}</span>`));
-    if (entry.schedule) meta.push(`<span class="tag tag-plain">${esc(entry.schedule)}</span>`);
+    if (entry.category) meta.push(`<span class="cj-tag cj-tag-accent">${esc(entry.category)}</span>`);
+    if (entry.schedule) meta.push(`<span class="cj-tag">${esc(entry.schedule)}</span>`);
+    (entry.tags || []).slice(0, 4).forEach((t) => meta.push(`<span class="cj-tag">${esc(t)}</span>`));
     return `
-      <section class="hero" style="--accent:${accent}">
-        <div class="hero-inner">
-          <div class="hero-mark">${logo}</div>
-          <div class="hero-copy">
-            <p class="eyebrow">${esc(entry.type === "staff" ? "Staff" : entry.type === "index" ? "Index" : "Team")}</p>
-            <h1 class="hero-title">${esc(entry.title)}</h1>
-            ${entry.tagline ? `<p class="hero-tagline">${esc(entry.tagline)}</p>` : ""}
-            ${meta.length ? `<div class="hero-meta">${meta.join("")}</div>` : ""}
-            ${entry.links ? linkRow(entry.links) : ""}
+      <section class="cj-hero" style="--cj-accent:${accent}">
+        <div class="container">
+          <div class="row align-items-center g-4">
+            ${mark ? `<div class="col-auto">${mark}</div>` : ""}
+            <div class="${mark ? "col" : "col-12"}">
+              <p class="cj-eyebrow">${esc(
+                entry.type === "staff" ? "Staff" : entry.type === "index" ? "Index" : entry.type === "event" ? "Event" : "Team"
+              )}</p>
+              <h1>${esc(entry.title)}</h1>
+              ${entry.tagline ? `<p class="cj-hero-lede">${esc(entry.tagline)}</p>` : ""}
+              ${meta.length ? `<div class="cj-hero-meta">${meta.join("")}</div>` : ""}
+              ${entry.links ? linkRow(entry.links) : ""}
+            </div>
           </div>
         </div>
       </section>`;
   }
 
-  function linkRow(links) {
-    const items = Object.entries(links)
-      .map(([k, v]) => `<a class="btn-chrome" href="${esc(v)}">${esc(k)}</a>`)
-      .join("");
-    return items ? `<div class="btn-row">${items}</div>` : "";
-  }
-
-  function initials(title) {
-    return String(title || "?")
-      .split(/\s+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((w) => w[0].toUpperCase())
-      .join("");
-  }
-
-  function cardGrid(entries, opts = {}) {
-    if (!entries.length) {
-      return `<div class="empty-state"><p>${esc(opts.empty || "No entries yet.")}</p></div>`;
+  function mark(entry) {
+    if (entry.logo) {
+      return (
+        `<img class="cj-card-mark" src="${esc(entry.logoSm || entry.logo)}" alt="" ` +
+        `${entry.logoSmW ? `width="${entry.logoSmW}" ` : ""}loading="lazy" decoding="async">`
+      );
     }
-    return `<div class="card-grid">${entries.map((e) => card(e, opts)).join("")}</div>`;
+    return `<img class="cj-card-mark cj-card-mark-avatar" src="${avatar(entry.title, 128)}" alt="" width="128" height="128" aria-hidden="true">`;
   }
 
   function card(entry, opts = {}) {
     const accent = accentOf(entry);
-    const mark = entry.logo
-      ? `<img src="${esc(entry.logo)}" alt="" loading="lazy" decoding="async">`
-      : `<span style="--accent:${accent}">${esc(initials(entry.title))}</span>`;
     const text = entry.summary || entry.tagline || "";
     const kind =
       entry.type === "event"
@@ -290,42 +310,61 @@ const CJ = (() => {
         ? "Staff"
         : entry.category || "Team";
     const haystack = `${entry.title} ${text} ${(entry.tags || []).join(" ")} ${entry.category || ""}`.toLowerCase();
+    const tags = (entry.tags || [])
+      .slice(0, 3)
+      .map((t) => `<span class="cj-tag">${esc(t)}</span>`)
+      .join("");
     return `
-      <a class="card" href="${pageUrl(entry.slug)}" style="--accent:${accent}" data-kind="${esc(kind)}" data-hay="${esc(haystack)}">
-        <div class="card-mark">${mark}</div>
-        <div class="card-body">
-          <p class="card-kind">${esc(kind)}</p>
-          <h3 class="card-title">${esc(entry.title)}</h3>
-          <p class="card-text">${esc(text)}</p>
-          ${entry.tags && entry.tags.length ? `<div class="card-tags">${entry.tags.slice(0, 3).map((t) => `<span class="tag">${esc(t)}</span>`).join("")}</div>` : ""}
+      <a class="cj-card" href="${pageUrl(entry.slug)}" style="--cj-accent:${accent}"
+         data-kind="${esc(kind)}" data-hay="${esc(haystack)}">
+        <div class="d-flex gap-3 align-items-start">
+          ${mark(entry)}
+          <div class="flex-grow-1 min-width-0">
+            <p class="cj-card-kind">${esc(kind)}</p>
+            <h3 class="cj-card-title">${esc(entry.title)}</h3>
+            ${text ? `<p class="cj-card-text">${esc(text)}</p>` : ""}
+            ${tags ? `<div class="d-flex flex-wrap gap-1 mt-2">${tags}</div>` : ""}
+          </div>
         </div>
       </a>`;
+  }
+
+  function cardGrid(entries, opts = {}) {
+    if (!entries.length) {
+      return `<div class="cj-empty"><p class="mb-0">${esc(opts.empty || "No entries yet.")}</p></div>`;
+    }
+    return `<div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3 cj-reveal">${entries
+      .map((e) => `<div class="col">${card(e, opts)}</div>`)
+      .join("")}</div>`;
   }
 
   function gallery(entry) {
     const shots = (entry.media || []).filter((m) => isImage(m.file));
     if (!shots.length) return "";
     return `
-      <div class="gallery" data-gallery>
-        <div class="gallery-stage">
+      <div class="cj-gallery" data-gallery>
+        <div class="cj-gallery-stage">
           ${shots
             .map(
               (m, i) =>
-                `<figure class="gallery-slide${i === 0 ? " active" : ""}"><img src="${esc(m.file)}" alt="${esc(entry.title)} media ${i + 1}" loading="lazy" decoding="async"></figure>`
+                `<figure class="cj-gallery-slide${i === 0 ? " active" : ""}">` +
+                `<img src="${esc(m.lg || m.file)}" alt="${esc(entry.title)} photo ${i + 1}" ` +
+                `${m.width ? `width="${m.width}" ` : ""}${m.height ? `height="${m.height}" ` : ""}` +
+                `loading="lazy" decoding="async"></figure>`
             )
             .join("")}
         </div>
-        <div class="gallery-bar">
-          <button class="btn-chrome" type="button" data-gallery-prev>Prev</button>
-          <span class="gallery-count" data-gallery-count>1/${shots.length}</span>
-          <button class="btn-chrome" type="button" data-gallery-next>Next</button>
+        <div class="cj-gallery-bar">
+          <button class="btn btn-sm" type="button" data-gallery-prev>Prev</button>
+          <span class="cj-gallery-count" data-gallery-count>1/${shots.length}</span>
+          <button class="btn btn-sm" type="button" data-gallery-next>Next</button>
         </div>
       </div>`;
   }
 
   function bindGallery(root) {
     root.querySelectorAll("[data-gallery]").forEach((g) => {
-      const slides = Array.from(g.querySelectorAll(".gallery-slide"));
+      const slides = Array.from(g.querySelectorAll(".cj-gallery-slide"));
       const count = g.querySelector("[data-gallery-count]");
       let i = 0;
       const go = (n) => {
@@ -336,111 +375,6 @@ const CJ = (() => {
       g.querySelector("[data-gallery-next]")?.addEventListener("click", () => go(i + 1));
       g.querySelector("[data-gallery-prev]")?.addEventListener("click", () => go(i - 1));
     });
-  }
-
-  function renderBody(entry) {
-    const { lead, sections } = splitSections(entry.body);
-    const blocks = [];
-    if (lead) blocks.push(`<section class="block"><div class="prose">${md(lead, entry.dir)}</div></section>`);
-    sections.forEach((s) => {
-      const key = slugify(s.heading);
-      if (key === "gallery") {
-        const g = gallery(entry);
-        if (g) blocks.push(`<section class="block" id="${key}"><h2 class="block-title">${esc(s.heading)}</h2>${g}</section>`);
-        return;
-      }
-      const inner = md(s.lines.join("\n"), entry.dir).trim();
-      if (!inner) return;
-      blocks.push(`<section class="block" id="${key}"><h2 class="block-title">${esc(s.heading)}</h2><div class="prose">${inner}</div></section>`);
-    });
-    return blocks.join("");
-  }
-
-  function emptyState(entry) {
-    return `
-      <section class="block">
-        <div class="empty-state">
-          <h2 class="empty-title">Content needed</h2>
-          <p>This page exists but has no published content yet. Copy <code>TEMPLATES/WEBPAGE_TEMPLATE.md</code> into <code>PAGES/${esc(entry.slug.toUpperCase())}/page.md</code> and open a pull request.</p>
-        </div>
-      </section>`;
-  }
-
-  function children(entry) {
-    const type = entry.list;
-    if (!type) return [];
-    return (state.manifest.pages || [])
-      .filter((p) => p.type === type && p.slug !== entry.slug && p.published !== false)
-      .filter((p) => !entry.category || p.category === entry.category)
-      .sort((a, b) => (a.order ?? 100) - (b.order ?? 100) || a.title.localeCompare(b.title));
-  }
-
-  function renderIndex(entry) {
-    const kids = children(entry);
-    if (!kids.length) return "";
-    return `
-      <section class="block" id="browse">
-        <h2 class="block-title">${esc(entry.listLabel || "Browse")}</h2>
-        <div class="toolbar" data-filters>
-          <input class="search" type="search" placeholder="Search" aria-label="Search" data-search>
-          <div class="chips" data-chips></div>
-        </div>
-        <div class="card-grid" data-card-grid>${kids.map((k) => card(k)).join("")}</div>
-        <p class="no-results" data-no-results hidden>Nothing matched that search.</p>
-      </section>`;
-  }
-
-  function bindFilters(root) {
-    const bar = root.querySelector("[data-filters]");
-    if (!bar) return;
-    const grid = bar.parentElement.querySelector("[data-card-grid]");
-    const search = bar.querySelector("[data-search]");
-    const chips = bar.querySelector("[data-chips]");
-    const empty = bar.parentElement.querySelector("[data-no-results]");
-    const cards = Array.from(grid.querySelectorAll(".card"));
-    const buckets = new Map();
-    cards.forEach((c) => {
-      const kind = c.dataset.kind;
-      buckets.set(kind, (buckets.get(kind) || 0) + 1);
-    });
-    if (buckets.size > 1) {
-      chips.innerHTML = Array.from(buckets.keys())
-        .sort()
-        .map((k) => {
-          const id = `chip-${slugify(k)}`;
-          return `<label class="chip" for="${id}"><input type="checkbox" id="${id}" value="${esc(k)}" checked><span>${esc(k)} <b>${buckets.get(k)}</b></span></label>`;
-        })
-        .join("");
-    } else {
-      chips.hidden = true;
-    }
-    const apply = () => {
-      const inputs = Array.from(chips.querySelectorAll("input"));
-      const on = inputs.length
-        ? new Set(inputs.filter((i) => i.checked).map((i) => i.value))
-        : new Set(buckets.keys());
-      const q = (search.value || "").trim().toLowerCase();
-      let shown = 0;
-      cards.forEach((c) => {
-        const keep = on.has(c.dataset.kind) && (!q || c.dataset.hay.includes(q));
-        c.hidden = !keep;
-        if (keep) shown++;
-      });
-      empty.hidden = shown > 0;
-    };
-    search.addEventListener("input", apply);
-    chips.addEventListener("change", apply);
-  }
-
-  function crumbs(entry) {
-    const parts = entry.slug.split("/");
-    return parts
-      .map((p, i) =>
-        i === parts.length - 1
-          ? `<span aria-current="page">${esc(entry.title)}</span>`
-          : esc(p.replace(/-/g, " "))
-      )
-      .join(`<span class="crumb-sep">/</span>`);
   }
 
   function sectionHtml(entry, key) {
@@ -460,10 +394,10 @@ const CJ = (() => {
     if (!res.ok) return "";
     const { body } = parseFrontmatter(await res.text());
     return `
-      <article class="post" id="post-${slugify(post.id)}">
-        <p class="post-kind">${post.date ? esc(post.date) : "Update"}${post.group ? ` | ${esc(post.group)}` : ""}</p>
-        <h3 class="post-title">${esc(post.title)}</h3>
-        <div class="prose">${md(body, post.dir)}</div>
+      <article class="cj-post" id="post-${slugify(post.id)}">
+        <p class="cj-post-kind">${post.date ? esc(post.date) : "Update"}${post.group ? ` | ${esc(post.group)}` : ""}</p>
+        <h3 class="cj-post-title">${esc(post.title)}</h3>
+        <div class="cj-prose">${md(body, post.dir)}</div>
       </article>`;
   }
 
@@ -472,10 +406,200 @@ const CJ = (() => {
     if (!posts.length) return "";
     const bodies = await Promise.all(posts.map(renderPost));
     return `
-      <section class="block" id="updates">
-        <h2 class="block-title">${esc(label || "Updates")}</h2>
-        <div class="post-list">${bodies.join("")}</div>
+      <section class="cj-block">
+        <div class="cj-block-head"><h2 class="cj-block-title">${esc(label || "Updates")}</h2></div>
+        <div class="row row-cols-1 row-cols-lg-2 g-3 cj-reveal">
+          ${bodies.map((b) => `<div class="col">${b}</div>`).join("")}
+        </div>
       </section>`;
+  }
+
+  function block(title, inner, more) {
+    return `
+      <section class="cj-block">
+        <div class="cj-block-head">
+          <h2 class="cj-block-title">${esc(title)}</h2>
+          ${more ? `<a class="cj-more" href="${pageUrl(more)}">See all</a>` : ""}
+        </div>
+        ${inner}
+      </section>`;
+  }
+
+  function peopleGrid(list, opts = {}) {
+    const people = list || state.manifest?.people || [];
+    if (!people.length) {
+      return `<div class="cj-empty"><p class="mb-0">${esc(opts.empty || "No staff listed yet.")}</p></div>`;
+    }
+    const cols = opts.cols || "row-cols-2 row-cols-sm-3 row-cols-lg-4";
+    const cells = people
+      .map(
+        (p) => `
+      <div class="col">
+        <div class="cj-person" style="--cj-accent:${accentOf({ slug: p.slug, accent: p.accent })}">
+          ${
+            p.photo
+              ? `<img class="cj-person-photo" src="${esc(p.photo)}" alt="${esc(p.name)}" ` +
+                `${p.widthSm ? `width="${p.widthSm}" ` : ""}${p.heightSm ? `height="${p.heightSm}" ` : ""}` +
+                `loading="lazy" decoding="async">`
+              : `<img class="cj-person-photo cj-person-photo-avatar" src="${avatar(p.name)}" alt="" width="400" height="400" aria-hidden="true">`
+          }
+          <p class="cj-person-name">${esc(p.name)}</p>
+          ${p.role ? `<p class="cj-person-role">${esc(p.role)}</p>` : ""}
+          ${
+            p.tags && p.tags.length
+              ? `<div class="d-flex flex-wrap gap-1 justify-content-center mt-2">${p.tags
+                  .map((t) => `<span class="cj-tag">${esc(t)}</span>`)
+                  .join("")}</div>`
+              : ""
+          }
+        </div>
+      </div>`
+      )
+      .join("");
+    return `<div class="row ${cols} g-3 cj-reveal">${cells}</div>`;
+  }
+
+  function renderBody(entry) {
+    const { lead, sections } = splitSections(entry.body);
+    const blocks = [];
+    if (lead) blocks.push(`<section class="cj-block"><div class="cj-prose">${md(lead, entry.dir)}</div></section>`);
+    sections.forEach((s) => {
+      const key = slugify(s.heading);
+      if (key === "gallery") {
+        const g = gallery(entry);
+        if (g) {
+          blocks.push(
+            `<section class="cj-block"><div class="cj-block-head"><h2 class="cj-block-title">Gallery</h2></div>${g}</section>`
+          );
+        }
+        return;
+      }
+      const inner = md(s.lines.join("\n"), entry.dir).trim();
+      if (!inner) return;
+      const content =
+        key === "people"
+          ? peopleGrid()
+          : `<div class="cj-prose">${inner}</div>`;
+      blocks.push(
+        `<section class="cj-block"><div class="cj-block-head"><h2 class="cj-block-title">${esc(s.heading)}</h2></div>${content}</section>`
+      );
+    });
+
+    if (entry.people) {
+      const people = state.manifest?.people || [];
+      blocks.unshift(
+        `<section class="cj-block"><div class="cj-block-head"><h2 class="cj-block-title">People</h2>` +
+          `<span class="cj-more">${people.length} entries</span></div>${peopleGrid(people, {
+            empty: "No staff listed yet."
+          })}</section>`
+      );
+      const notes = people
+        .map((p) => (p.note ? `<article class="cj-post"><p class="cj-post-kind">${esc(p.name)}</p><p class="mb-0">${esc(p.note)}</p></article>` : ""))
+        .filter(Boolean)
+        .join("");
+      if (notes) {
+        blocks.push(
+          `<section class="cj-block"><div class="cj-block-head"><h2 class="cj-block-title">Notes</h2></div>` +
+            `<div class="row row-cols-1 row-cols-lg-2 g-3 cj-reveal">${notes}</div></section>`
+        );
+      }
+    }
+    return blocks.join("");
+  }
+
+  function bindPeople(root) {
+    root.querySelectorAll("img[data-avatar]").forEach((img) => {
+      const name = img.closest(".cj-person")?.querySelector(".cj-person-name")?.textContent?.trim();
+      if (!name) return;
+      img.setAttribute("src", avatar(name));
+      img.setAttribute("alt", "");
+      img.setAttribute("aria-hidden", "true");
+      img.classList.add("cj-person-photo-avatar");
+      img.removeAttribute("data-avatar");
+    });
+  }
+
+  function emptyState(entry) {
+    return `
+      <section class="cj-block">
+        <div class="cj-empty">
+          <h2>Content needed</h2>
+          <p class="mb-0">This page exists but has no published content yet. Copy <code>TEMPLATES/WEBPAGE_TEMPLATE.md</code> into <code>PAGES/${esc(
+            entry.slug.toUpperCase()
+          )}/page.md</code>, then run <code>node tools/build.mjs</code>.</p>
+        </div>
+      </section>`;
+  }
+
+  function children(entry) {
+    const type = entry.list;
+    if (!type) return [];
+    return (state.manifest.pages || [])
+      .filter((p) => p.type === type && p.slug !== entry.slug && p.published !== false)
+      .filter((p) => !entry.category || p.category === entry.category)
+      .sort((a, b) => (a.order ?? 100) - (b.order ?? 100) || a.title.localeCompare(b.title));
+  }
+
+  function renderIndex(entry) {
+    const kids = children(entry);
+    if (!kids.length) return "";
+    return `
+      <section class="cj-block">
+        <div class="cj-block-head">
+          <h2 class="cj-block-title">${esc(entry.listLabel || "Browse")}</h2>
+        </div>
+        <div class="cj-toolbar">
+          <input class="cj-search" type="search" placeholder="Search" aria-label="Search" data-search>
+          <div class="cj-chips" data-chips></div>
+        </div>
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3 cj-reveal" data-card-grid>
+          ${kids.map((k) => `<div class="col">${card(k)}</div>`).join("")}
+        </div>
+        <p class="cj-none mt-3" data-no-results hidden>Nothing matched that search.</p>
+      </section>`;
+  }
+
+  function bindFilters(root) {
+    const bar = root.querySelector("[data-search]");
+    if (!bar) return;
+    const toolbar = bar.closest(".cj-toolbar");
+    const grid = toolbar.parentElement.querySelector("[data-card-grid]");
+    const chips = toolbar.querySelector("[data-chips]");
+    const empty = toolbar.parentElement.querySelector("[data-no-results]");
+    const cells = Array.from(grid.querySelectorAll(".col"));
+    const buckets = new Map();
+    cells.forEach((c) => {
+      const kind = c.querySelector(".cj-card").dataset.kind;
+      buckets.set(kind, (buckets.get(kind) || 0) + 1);
+    });
+    if (buckets.size > 1) {
+      chips.innerHTML = Array.from(buckets.keys())
+        .sort()
+        .map((k) => {
+          const id = `chip-${slugify(k)}`;
+          return `<label class="cj-chip" for="${id}"><input type="checkbox" id="${id}" value="${esc(k)}" checked><span>${esc(k)} <b>${buckets.get(k)}</b></span></label>`;
+        })
+        .join("");
+    } else {
+      chips.hidden = true;
+    }
+    const apply = () => {
+      const inputs = Array.from(chips.querySelectorAll("input"));
+      const on = inputs.length
+        ? new Set(inputs.filter((i) => i.checked).map((i) => i.value))
+        : new Set(buckets.keys());
+      const q = bar.value.trim().toLowerCase();
+      let shown = 0;
+      cells.forEach((c) => {
+        const cardEl = c.querySelector(".cj-card");
+        const keep = on.has(cardEl.dataset.kind) && (!q || cardEl.dataset.hay.includes(q));
+        c.hidden = !keep;
+        if (keep) shown++;
+      });
+      empty.hidden = shown > 0;
+    };
+    bar.addEventListener("input", apply);
+    chips.addEventListener("change", apply);
   }
 
   return {
@@ -488,19 +612,24 @@ const CJ = (() => {
     loadEntry,
     findPage,
     accentOf,
+    initialsOf,
+    avatar,
     navPages,
     mountShell,
     hero,
+    block,
     renderBody,
     renderIndex,
     cardGrid,
+    peopleGrid,
+    card,
     children,
-    crumbs,
     postsFor,
     postsBlock,
     sectionHtml,
     bindGallery,
     bindFilters,
+    bindPeople,
     emptyState,
     pageUrl
   };

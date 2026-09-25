@@ -1,15 +1,22 @@
 (() => {
   const main = document.getElementById("main");
+  const pages = () => (window.__manifest?.pages || []);
 
-  const byType = (type, extra) => (window.__manifest.pages || [])
-    .filter((p) => p.type === type && p.published !== false)
-    .filter(extra || (() => true));
+  const byType = (type, extra) =>
+    pages()
+      .filter((p) => p.type === type && p.published !== false)
+      .filter(extra || (() => true));
 
   const fmtDate = (iso) => {
     if (!iso) return "";
     const d = new Date(`${iso}T00:00:00`);
     if (Number.isNaN(d.getTime())) return iso;
-    return d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric" });
+    return d.toLocaleDateString(undefined, {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      year: "numeric"
+    });
   };
 
   const fmtTime = (t) => {
@@ -27,73 +34,102 @@
   }
 
   function eventList(items) {
-    if (!items.length) return `<div class="empty-state"><p>No events scheduled yet.</p></div>`;
-    return `<ul class="event-list">${items
+    if (!items.length) return `<div class="cj-empty"><p class="mb-0">No events scheduled yet.</p></div>`;
+    return `<div class="d-flex flex-column gap-2 cj-reveal">${items
       .map(
         (e) => `
-      <li class="event-row" style="--accent:${CJ.accentOf(e)}">
-        <div class="event-when">
-          <span class="event-date">${e.date ? CJ.esc(fmtDate(e.date)) : CJ.esc(`Every ${e.recurring}`)}</span>
-          ${e.time ? `<span class="event-time">${CJ.esc(fmtTime(e.time))}</span>` : ""}
+      <div class="cj-event" style="--cj-accent:${CJ.accentOf(e)}">
+        <div class="cj-event-when">
+          <span class="cj-event-date">${e.date ? CJ.esc(fmtDate(e.date)) : CJ.esc(`Every ${e.recurring}`)}</span>
+          ${e.time ? `<span class="cj-event-time">${CJ.esc(fmtTime(e.time))}</span>` : ""}
         </div>
-        <div class="event-body">
-          <a class="event-title" href="${CJ.pageUrl(e.slug)}">${CJ.esc(e.title)}</a>
-          ${e.location ? `<span class="event-where">${CJ.esc(e.location)}</span>` : ""}
-          ${e.summary ? `<span class="event-text">${CJ.esc(e.summary)}</span>` : ""}
+        <div class="cj-event-body">
+          <a class="cj-event-title" href="${CJ.pageUrl(e.slug)}">${CJ.esc(e.title)}</a>
+          ${e.location ? `<span class="cj-event-where">${CJ.esc(e.location)}</span>` : ""}
+          ${e.summary ? `<span class="cj-event-text">${CJ.esc(e.summary)}</span>` : ""}
         </div>
-      </li>`
+      </div>`
       )
-      .join("")}</ul>`;
+      .join("")}</div>`;
   }
 
   function carousel(shots) {
     if (!shots.length) return "";
     return `
-      <section class="block" id="featured">
-        <h2 class="block-title">Featured</h2>
-        <div class="gallery" data-gallery>
-          <div class="gallery-stage">
-            ${shots
-              .map(
-                (s, i) =>
-                  `<figure class="gallery-slide${i === 0 ? " active" : ""}"><img src="${CJ.esc(s)}" alt="Cyber Jedis media ${i + 1}" loading="lazy" decoding="async"></figure>`
-              )
-              .join("")}
+      <div class="cj-gallery" data-gallery>
+        <div class="cj-gallery-stage">
+          ${shots
+            .map(
+              (s, i) =>
+                `<figure class="cj-gallery-slide${i === 0 ? " active" : ""}">` +
+                `<img src="${CJ.esc(s.lg || s.file)}" alt="Cyber Jedis photo ${i + 1}" loading="lazy" decoding="async"></figure>`
+            )
+            .join("")}
+        </div>
+        <div class="cj-gallery-bar">
+          <button class="btn btn-sm" type="button" data-gallery-prev>Prev</button>
+          <span class="cj-gallery-count" data-gallery-count>1/${shots.length}</span>
+          <button class="btn btn-sm" type="button" data-gallery-next>Next</button>
+        </div>
+      </div>`;
+  }
+
+  function joinBand() {
+    const c = window.siteConfig;
+    const discord = c.socialLinks?.discord || "#";
+    return `
+      <section class="cj-cta">
+        <div class="row g-4 align-items-center">
+          <div class="col-lg">
+            <h2>Come to a general meeting</h2>
+            <p>${CJ.esc(c.contact?.meetingDay || "Friday")} at ${CJ.esc(c.contact?.defaultMeetingTime || "6:00 PM")} in ${CJ.esc(
+      c.contact?.defaultLocation || "NPB 1.226"
+    )}. No experience required.</p>
           </div>
-          <div class="gallery-bar">
-            <button class="btn-chrome" type="button" data-gallery-prev>Prev</button>
-            <span class="gallery-count" data-gallery-count>1/${shots.length}</span>
-            <button class="btn-chrome" type="button" data-gallery-next>Next</button>
+          <div class="col-lg-auto">
+            <div class="d-flex flex-wrap gap-2">
+              <a class="btn btn-lg btn-jedis" style="--cj-accent:#8338ec" href="${CJ.esc(discord)}">Join the Discord</a>
+              <a class="btn btn-lg btn-outline-jedis" style="--cj-accent:#8338ec" href="https://rowdylink.utsa.edu/organization/cyberjedis">RowdyLink</a>
+            </div>
           </div>
         </div>
       </section>`;
   }
 
-  function section(title, id, inner, more) {
+  function hero(entry, c) {
     return `
-      <section class="block" id="${id}">
-        <div class="block-head">
-          <h2 class="block-title">${CJ.esc(title)}</h2>
-          ${more ? `<a class="block-more" href="${CJ.pageUrl(more)}">See all</a>` : ""}
+      <section class="cj-hero cj-hero-home">
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-8">
+              <p class="cj-eyebrow">${CJ.esc(c.siteTagline || "")}</p>
+              <h1>${CJ.esc(c.siteName || "Cyber Jedis")}</h1>
+              <p class="cj-hero-lede">${CJ.esc(entry.tagline || "")}</p>
+              <div class="d-flex flex-wrap gap-2 mt-4">
+                <a class="btn btn-jedis btn-lg" style="--cj-accent:#ffbe0b" href="${CJ.pageUrl("teams")}">Explore teams</a>
+                <a class="btn btn-outline-jedis btn-lg" href="${CJ.pageUrl("connect")}">Join us</a>
+              </div>
+            </div>
+          </div>
         </div>
-        ${inner}
       </section>`;
   }
 
   async function render() {
     let entry;
     try {
-      const manifest = await CJ.loadManifest();
-      window.__manifest = manifest;
+      const m = await CJ.loadManifest();
+      window.__manifest = m;
       entry = await CJ.loadEntry(CJ.findPage("home"));
     } catch (err) {
-      main.innerHTML = `<div class="empty-state"><h2 class="empty-title">Build required</h2><p>${CJ.esc(err.message)}</p></div>`;
+      main.innerHTML = `<div class="container"><div class="cj-empty mt-5"><h2>Build required</h2><p class="mb-0">${CJ.esc(
+        err.message
+      )}</p></div></div>`;
       return;
     }
 
     const c = window.siteConfig;
     document.title = `${c.siteName} | ${c.siteTagline}`;
-
     const meta = document.createElement("meta");
     meta.name = "description";
     meta.content = entry.tagline || "";
@@ -103,101 +139,73 @@
 
     const show = entry.meta.show || {};
     const shots = window.__manifest.carousel || [];
+    const out = [hero(entry, c)];
 
     const body = CJ.renderBody(entry);
-    const blocks = [];
+    if (body) out.push(`<div class="container">${body}</div>`);
+
+    const middle = [];
 
     if (show.teams) {
       const teams = byType("team").slice(0, show.teams);
-      blocks.push(section("Teams and research groups", "teams", CJ.cardGrid(teams, { empty: "No teams published yet." }), "teams"));
-    }
-    if (body) blocks.push(body);
-    if (show.events) {
-      blocks.push(section("Upcoming", "upcoming", eventList(events(show.events))));
-    }
-    if (show.staff) {
-      const staffStub = CJ.findPage("staff");
-      const people = staffStub ? CJ.sectionHtml(await CJ.loadEntry(staffStub), "people") : "";
-      blocks.push(
-        section(
-          "Officers and leads",
-          "staff",
-          people
-            ? `<div class="people people-compact">${people}</div>`
-            : `<div class="empty-state"><p>No staff listed yet.</p></div>`,
-          "staff"
-        )
+      middle.push(
+        `<div class="container">${CJ.block("Teams and research groups", CJ.cardGrid(teams, { empty: "No teams published yet." }), "teams")}</div>`
       );
     }
+
+    if (show.events) {
+      middle.push(`<div class="container">${CJ.block("Upcoming", eventList(events(show.events)))}</div>`);
+    }
+
+    if (show.staff) {
+      middle.push(
+        `<div class="container">${CJ.block(
+          "Officers and leads",
+          CJ.peopleGrid(null, { empty: "No staff listed yet.", cols: "row-cols-3 row-cols-lg-6" }),
+          "staff"
+        )}</div>`
+      );
+    }
+
     if (show.posts) {
       const latest = (window.__manifest.posts || [])
         .slice()
         .sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")))
         .slice(0, show.posts);
-      const rendered = await Promise.all(
-        latest.map(async (p) => {
+      const cards = latest
+        .map((p) => {
           const team = byType("team").find((t) => t.slug === p.page);
           return `
-            <article class="post">
-              <p class="post-kind">${p.date ? CJ.esc(p.date) : "Update"}${team ? ` | ${CJ.esc(team.title)}` : ""}</p>
-              <a class="post-title" href="${CJ.pageUrl(p.page)}#post-${CJ.slugify(p.id)}">${CJ.esc(p.title)}</a>
-              <p class="post-text">${CJ.esc(p.summary)}</p>
-            </article>`;
+          <div class="col">
+            <article class="cj-post">
+              <p class="cj-post-kind">${p.date ? CJ.esc(p.date) : "Update"}${team ? ` | ${CJ.esc(team.title)}` : ""}</p>
+              <a class="cj-post-title" href="${CJ.pageUrl(p.page)}#post-${CJ.slugify(p.id)}">${CJ.esc(p.title)}</a>
+              <p class="cj-post-text">${CJ.esc(p.summary)}</p>
+            </article>
+          </div>`;
         })
-      );
-      blocks.push(
-        section(
+        .join("");
+      middle.push(
+        `<div class="container">${CJ.block(
           "Latest updates",
-          "latest",
-          rendered.length
-            ? `<div class="post-list post-list-compact">${rendered.join("")}</div>`
-            : `<div class="empty-state"><p>No updates published yet.</p></div>`
-        )
+          cards ? `<div class="row row-cols-1 row-cols-sm-3 g-3 cj-reveal">${cards}</div>` : `<div class="cj-empty"><p class="mb-0">No updates published yet.</p></div>`
+        )}</div>`
       );
     }
-    if (shots.length) blocks.push(carousel(shots));
 
-    const homeBlocks = [hero(entry, c), ...blocks];
-    homeBlocks.splice(show.teams ? 3 : 2, 0, joinBand());
+    if (shots.length) {
+      middle.push(
+        `<div class="container">${CJ.block("Featured", carousel(shots))}</div>`
+      );
+    }
 
-    main.innerHTML = homeBlocks.join("");
+    out.push(`<div class="container"><div class="mb-4">${joinBand()}</div></div>`);
+    out.push(...middle);
+
+    main.innerHTML = out.join("");
     CJ.bindGallery(main);
+    CJ.bindPeople(main);
     window.dispatchEvent(new Event("cj:render"));
-  }
-
-  function hero(entry, c) {
-    return `
-      <section class="hero hero-home">
-        <div class="hero-inner">
-          <div class="hero-copy">
-            <p class="eyebrow">${CJ.esc(c.siteTagline || "")}</p>
-            <h1 class="hero-title hero-title-lg">${CJ.esc(c.siteName || "Cyber Jedis")}</h1>
-            <p class="hero-tagline">${CJ.esc(entry.tagline || "")}</p>
-            <div class="btn-row">
-              <a class="btn-chrome btn-primary" href="${CJ.pageUrl("teams")}">Explore teams</a>
-              <a class="btn-chrome" href="${CJ.pageUrl("connect")}">Join us</a>
-            </div>
-          </div>
-        </div>
-      </section>`;
-  }
-
-  function joinBand() {
-    const c = window.siteConfig;
-    const discord = (c.socialLinks || {}).discord || "#";
-    return `
-      <section class="band" id="join">
-        <div class="band-inner">
-          <div>
-            <h2 class="band-title">Come to a general meeting</h2>
-            <p class="band-text">Fridays at ${CJ.esc(c.contact?.defaultMeetingTime || "6:00 PM")} in ${CJ.esc(c.contact?.defaultLocation || "NPB 1.226")}. No experience required.</p>
-          </div>
-          <div class="btn-row">
-            <a class="btn-chrome btn-primary" href="${CJ.esc(discord)}">Join the Discord</a>
-            <a class="btn-chrome" href="https://rowdylink.utsa.edu/organization/cyberjedis">RowdyLink</a>
-          </div>
-        </div>
-      </section>`;
   }
 
   render();

@@ -3,6 +3,9 @@
 Static site for the UTSA Cyber Jedis. No framework, no runtime server.
 The site root is the repository root, served by GitHub Pages.
 
+Bootstrap 5.3.3 is vendored in `assets/vendor/bootstrap`, not loaded from a
+CDN. `styles.css` is the brand layer on top of it.
+
 ## Layout
 
 ```
@@ -19,7 +22,8 @@ PAGES/
     ORDER404/
   STAFF/
     page.md                    the one people page
-    media/                     one headshot per person
+    people/<slug>.md           one file per person
+    media/                     headshots
   EVENTS/
     general-meeting.md         event data, no index page
 ```
@@ -35,8 +39,8 @@ is the folder path: `PAGES/TEAMS/CWNS/page.md` is served at
 3. Fill in the frontmatter and the sections
 4. Drop a `logo.png` into the `media/` folder
 5. Drop any other images into the same folder, they appear in Gallery
-6. Run `node tools/build.mjs`
-7. Commit `page.md`, the media, and `data/manifest.json`
+6. Run `python3 tools/images.py` then `node tools/build.mjs`
+7. Commit `page.md`, the media, the derivatives, and `data/manifest.json`
 
 To hide a page without deleting it, set `published: false`.
 
@@ -48,7 +52,7 @@ To hide a page without deleting it, set `published: false`.
 | `navLabel` | Shorter label for the site nav |
 | `nav` | `true` puts the page in the primary nav |
 | `order` | Sort weight for nav and index grids |
-| `type` | `page`, `team`, `event`, or `index`. `staff` is available if people ever need their own pages |
+| `type` | `page`, `team`, `event`, or `index` |
 | `list` | On an `index` page, the child `type` to auto list |
 | `listLabel` | Heading above the auto generated grid |
 | `category` | Grouping label, also filters index children |
@@ -59,6 +63,7 @@ To hide a page without deleting it, set `published: false`.
 | `logo` | Media file used as the mark, defaults to `logo.*` |
 | `schedule` | Short meeting line shown in the hero |
 | `links` | `key: url` pairs rendered as buttons |
+| `people` | `true` renders the `people/` folder as a grid |
 | `postsLabel` | Heading for the page's post list, defaults to Updates |
 | `show` | Homepage widgets, for example `teams: 6, posts: 3` |
 | `published` | `false` hides the page from all listings |
@@ -72,19 +77,39 @@ from.
 
 ## People
 
-Everyone is listed on the single staff page in `PAGES/STAFF/page.md`.
-Each entry is a copy of this block, with the headshot as the main element:
+Everyone lives on the staff page, one file per person in
+`PAGES/STAFF/people/`. Copy `_template.md` to make a new one:
 
 ```
-<li class="person">
-  <img class="person-photo" src="media/name.png" alt="Full Name" width="1080" height="1350">
-  <p class="person-name">Full Name</p>
-  <p class="person-role">Role</p>
-</li>
+---
+name: Full Name
+role: Role or position
+order: 10
+photo: [file stem in media/, extension optional]
+tags: [tag-a, tag-b]
+---
+
+Optional paragraph, shown under the grid.
 ```
 
-Put the headshots in `PAGES/STAFF/media/`. Omit the `img` and use
-`<p class="person-photo person-photo-empty">` when there is no photo yet.
+`photo` is the file stem, so `photo: ana` picks up `media/ana.png` or
+`media/ana.jpg`. Leave it out and the card gets a generated initials
+avatar instead of a broken image. Lower `order` sorts first.
+
+## Images
+
+`tools/images.py` writes two JPEG derivatives next to every source image
+and never modifies the original:
+
+| Path | Long edge | Used by |
+| --- | --- | --- |
+| `thumbs/<name>.jpg` | 1400 | gallery |
+| `thumbs/sm/<name>.jpg` | 560 | cards, avatars, marks |
+
+Photographic PNGs are re-encoded as JPEG, since a photo kept as PNG is
+several times larger for the same pixels. Aspect ratio is never changed,
+so nothing is cropped. Derivatives are committed and CI fails if they are
+stale.
 
 ## Events
 
@@ -94,17 +119,18 @@ frontmatter. Events show on the homepage and are addressable at
 
 ## Posts
 
-Team posts live in `PAGES/<TEAM FOLDER>/posts/*.md`. They appear on the team
-page and in the homepage updates widget.
+Team posts live in `PAGES/<TEAM FOLDER>/posts/*.md`. They appear on the
+team page and in the homepage updates widget.
 
 ## Build
 
 ```
-node tools/build.mjs
+python3 tools/images.py      # regenerate image derivatives
+node tools/build.mjs         # regenerate data/manifest.json
 ```
 
-This scans `PAGES/`, writes `data/manifest.json`, and lists any page that
-needs content. CI fails if the committed manifest is out of date.
+`build.mjs` scans `PAGES/`, writes `data/manifest.json`, and lists any
+page that needs content. CI fails if either output is out of date.
 
 ## Preview
 
@@ -118,7 +144,7 @@ python3 localdev.py 8000
 | --- | --- |
 | `index.html` | Homepage shell, reads `PAGES/HOME/page.md` |
 | `page.html` | Renders any page from `?p=<folder path>` |
-| `styles.css` | Design tokens and all layout |
+| `styles.css` | Brand layer on top of Bootstrap |
 | `site.js` | Shared rendering helpers |
 | `config.js` | Site name, links, theme, particles |
 | `home.js` | Homepage widgets |

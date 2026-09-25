@@ -1,12 +1,12 @@
 import { readdir, readFile, writeFile, mkdir, stat } from "node:fs/promises";
-import { existsSync } from "node:fs";
+import { existsSync, openSync, readSync, closeSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const PAGES_DIR = path.join(ROOT, "PAGES");
 const DATA_DIR = path.join(ROOT, "data");
-const SKIP_DIRS = new Set(["media", "posts"]);
+const SKIP_DIRS = new Set(["media", "posts", "people"]);
 const IMAGE_RE = /\.(jpg|jpeg|png|gif|webp|avif|svg)$/i;
 
 const ACCENTS = {
@@ -92,17 +92,95 @@ async function walk(dir) {
   return out;
 }
 
+function imageSize(file) {
+  let fd;
+  try {
+    fd = openSync(file, "r");
+    const head = Buffer.alloc(65536);
+    const read = readSync(fd, head, 0, head.length, 0);
+    if (read < 24) return null;
+
+    if (head[0] === 0x89 && head[1] === 0x50) {
+      return { width: head.readUInt32BE(16), height: head.readUInt32BE(20) };
+    }
+    if (head.toString("ascii", 0, 4) === "RIFF" && head.toString("ascii", 8, 12) === "WEBP") {
+      const kind = head.toString("ascii", 12, 16);
+      if (kind === "VP8 " && read >= 30) {
+        return { width: head.readUInt16LE(26) & 0x3fff, height: head.readUInt16LE(28) & 0x3fff };
+      }
+      if (kind === "VP8L" && read >= 25) {
+        const bits = head.readUInt32LE(21);
+        return { width: (bits & 0x3fff) + 1, height: ((bits >> 14) & 0x3fff) + 1 };
+      }
+      if (kind === "VP8X" && read >= 30) {
+        const w = 1 + (head[24] | (head[25] << 8) | (head[26] << 16));
+        const h = 1 + (head[27] | (head[28] << 8) | (head[29] << 16));
+        return { width: w, height: h };
+      }
+      return null;
+    }
+    if (head[0] === 0xff && head[1] === 0xd8) {
+      let i = 2;
+      while (i + 9 < read) {
+        if (head[i] !== 0xff) {
+          i += 1;
+          continue;
+        }
+        const marker = head[i + 1];
+        if (marker === 0xd8 || marker === 0x01 || (marker >= 0xd0 && marker <= 0xd7)) {
+          i += 2;
+          continue;
+        }
+        const len = head.readUInt16BE(i + 2);
+        if (marker >= 0xc0 && marker <= 0xcf && marker !== 0xc4 && marker !== 0xc8 && marker !== 0xcc) {
+          return { width: head.readUInt16BE(i + 7), height: head.readUInt16BE(i + 5) };
+        }
+        i += 2 + len;
+      }
+      return null;
+    }
+    if (head.toString("ascii", 0, 3) === "GIF") {
+      return { width: head.readUInt16LE(6), height: head.readUInt16LE(8) };
+    }
+    return null;
+  } catch {
+    return null;
+  } finally {
+    if (fd !== undefined) closeSync(fd);
+  }
+}
+
+function derivative(rel, size) {
+  const dir = path.posix.dirname(rel);
+  const stem = path.basename(rel, path.extname(rel));
+  const candidate = size ? `${dir}/thumbs/${size}/${stem}.jpg` : `${dir}/thumbs/${stem}.jpg`;
+  return existsSync(path.join(ROOT, candidate)) ? candidate : rel;
+}
+
 async function collectMedia(pageDir) {
   const mediaDir = path.join(pageDir, "media");
   if (!existsSync(mediaDir)) return [];
-  const files = (await walk(mediaDir)).filter((f) => IMAGE_RE.test(f));
+  const files = (await walk(mediaDir)).filter(
+    (f) => IMAGE_RE.test(f) && !f.split(path.sep).includes("thumbs")
+  );
   const items = [];
   for (const file of files.sort()) {
     const s = await stat(file);
+    const rel = path.relative(ROOT, file).split(path.sep).join("/");
+    const lg = derivative(rel, "");
+    const sm = derivative(rel, "sm");
+    const full = imageSize(path.join(ROOT, lg));
+    const small = imageSize(path.join(ROOT, sm));
     items.push({
-      file: path.relative(ROOT, file).split(path.sep).join("/"),
+      file: rel,
       name: path.basename(file),
-      bytes: s.size
+      bytes: s.size,
+      lg,
+      sm,
+      width: full?.width ?? null,
+      height: full?.height ?? null,
+      widthSm: small?.width ?? null,
+      heightSm: small?.height ?? null
     });
   }
   return items;
@@ -118,7 +196,7 @@ async function readPage(pageDir) {
   const logoName = data.logo
     ? String(data.logo).split("/").pop()
     : (media.find((m) => /^logo\./i.test(m.name)) || {}).name;
-  const logo = logoName ? media.find((m) => m.name === logoName) : undefined;
+  const logoMedia = logoName ? media.find((m) => m.name === logoName) : undefined;
   const title = data.title || slug.split("/").pop().replace(/-/g, " ").toUpperCase();
   const sections = Array.from(body.matchAll(/^##\s+(.+)$/gm)).map((m) => slugify(m[1]));
   const text = plainText(body);
@@ -136,8 +214,10 @@ async function readPage(pageDir) {
     tags: asArray(data.tags),
     order: typeof data.order === "number" ? data.order : 100,
     accent: accentHex(data.accent),
-    logo: logo ? logo.file : null,
+    logo: logoMedia ? logoMedia.lg : null,
+    logoSm: logoMedia ? logoMedia.sm : null,
     postsLabel: data.postsLabel || null,
+    people: data.people === true,
     media: media.filter((m) => m.name !== logoName),
     source: path.relative(ROOT, mdPath).split(path.sep).join("/"),
     dir: path.relative(ROOT, pageDir).split(path.sep).join("/"),
@@ -224,8 +304,11 @@ async function collectEvents() {
 async function collectCarousel() {
   const dir = path.join(ROOT, "MEDIA", "img", "carousel");
   if (!existsSync(dir)) return [];
-  const files = (await readdir(dir)).filter((f) => IMAGE_RE.test(f)).sort();
-  return files.map((f) => `MEDIA/img/carousel/${f}`);
+  const files = (await readdir(dir)).filter((f) => IMAGE_RE.test(f) && !f.startsWith("."));
+  return files
+    .sort()
+    .map((f) => `MEDIA/img/carousel/${f}`)
+    .map((rel) => ({ file: rel, lg: derivative(rel, ""), sm: derivative(rel, "sm") }));
 }
 
 async function pageDirs(dir, depth = 0) {
@@ -239,6 +322,36 @@ async function pageDirs(dir, depth = 0) {
   return out;
 }
 
+async function collectPeople(page, media) {
+  if (!page.people) return [];
+  const dir = path.join(PAGES_DIR, ...page.slug.split("/").map((s) => s.toUpperCase()), "people");
+  if (!existsSync(dir)) return [];
+  const people = [];
+  for (const f of (await readdir(dir)).filter((f) => f.endsWith(".md") && !f.startsWith("_")).sort()) {
+    const file = path.join(dir, f);
+    const { data, body } = parseFrontmatter(await readFile(file, "utf8"));
+    const slug = f.replace(/\.md$/, "");
+    const stem = data.photo ? String(data.photo).replace(/\.[^.]+$/, "") : "";
+    const hit = stem ? media.find((m) => m.name === `${path.basename(stem)}.png` || m.name === `${path.basename(stem)}.jpg` || m.name.startsWith(`${path.basename(stem)}.`)) : null;
+    people.push({
+      slug,
+      page: page.slug,
+      name: data.name || slug,
+      role: data.role || "",
+      order: typeof data.order === "number" ? data.order : 100,
+      tags: asArray(data.tags),
+      accent: accentHex(data.accent),
+      photo: hit ? hit.sm : null,
+      widthSm: hit ? hit.widthSm : null,
+      heightSm: hit ? hit.heightSm : null,
+      note: plainText(body) || null,
+      source: path.relative(ROOT, file).split(path.sep).join("/")
+    });
+  }
+  people.sort((a, b) => a.order - b.order || a.name.localeCompare(b.name));
+  return people;
+}
+
 async function build() {
   const pages = [];
   for (const dir of await pageDirs(PAGES_DIR)) {
@@ -250,6 +363,13 @@ async function build() {
   const posts = [];
   for (const page of pages) posts.push(...(await collectPosts(page)));
 
+  const people = [];
+  for (const page of pages) {
+    const dir = path.join(PAGES_DIR, ...page.slug.split("/").map((s) => s.toUpperCase()));
+    const media = existsSync(path.join(dir, "media")) ? await collectMedia(dir) : [];
+    people.push(...(await collectPeople(page, media)));
+  }
+
   const events = await collectEvents();
   pages.push(...events);
   pages.sort((a, b) => a.slug.localeCompare(b.slug));
@@ -258,6 +378,7 @@ async function build() {
     generated: new Date().toISOString().slice(0, 10),
     carousel: await collectCarousel(),
     pages,
+    people,
     posts
   };
 
@@ -266,6 +387,7 @@ async function build() {
 
   const counts = {
     pages: pages.length,
+    people: people.length,
     empty: pages.filter((p) => p.empty && p.type !== "index").length,
     posts: posts.length,
     events: events.length,

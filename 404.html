@@ -4,25 +4,46 @@
   <meta charset="utf-8">
   <title>Page not found | UTSA Cyber Jedis</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="/styles.css">
+  <meta name="robots" content="noindex">
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
-  <style>
-    body { display: grid; place-items: center; min-height: 100vh; }
-    .notfound { max-width: 34rem; padding: 3rem 1.5rem; text-align: center; }
-    .notfound h1 { font-size: clamp(2rem, 8vw, 3rem); text-transform: uppercase; letter-spacing: 0.03em; }
-    .notfound p { margin: 1rem 0 2rem; color: var(--muted); }
-  </style>
+  <link rel="stylesheet" href="/assets/vendor/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-  <div class="notfound">
-    <p class="eyebrow">404</p>
-    <h1>Page not found</h1>
-    <p>That address does not match a page on this site.</p>
-    <div class="btn-row" style="justify-content:center">
-      <a class="btn-chrome" href="/index.html">Home</a>
-      <a class="btn-chrome" href="/page.html?p=teams">Teams</a>
-      <a class="btn-chrome" href="/page.html?p=connect">Connect</a>
+  <div class="cj-bg" aria-hidden="true"></div>
+  <div class="cj-grain" aria-hidden="true"></div>
+  <header class="cj-navbar navbar navbar-expand-lg">
+    <div class="container">
+      <a class="navbar-brand cj-brand" href="/index.html">UTSA Cyber Jedis<small>Innovation &amp; Collaboration</small></a>
+      <ul class="navbar-nav cj-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="/index.html">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="/page.html?p=teams">Teams</a></li>
+        <li class="nav-item"><a class="nav-link" href="/page.html?p=staff">Staff</a></li>
+        <li class="nav-item"><a class="nav-link" href="/page.html?p=connect">Connect</a></li>
+      </ul>
     </div>
-  </div>
+  </header>
+  <main class="flex-grow-1">
+    <section class="cj-hero">
+      <div class="container">
+        <p class="cj-eyebrow">404</p>
+        <h1>Page not found</h1>
+        <p class="cj-hero-lede">That address does not match a page on this site.</p>
+        <div class="d-flex flex-wrap gap-2 mt-4">
+          <a class="btn btn-jedis btn-lg" href="/index.html">Home</a>
+          <a class="btn btn-outline-jedis btn-lg" href="/page.html?p=teams">Teams</a>
+          <a class="btn btn-outline-jedis btn-lg" href="/page.html?p=staff">Staff</a>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="cj-footer">
+    <div class="container">
+      <p class="mb-0">&copy; <span id="yr"></span> The UTSA Cyber Jedis</p>
+    </div>
+  </footer>
+  <script>
+    document.getElementById("yr").textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
