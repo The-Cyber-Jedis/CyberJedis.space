@@ -1,0 +1,384 @@
+{
+  "generated": "2026-09-25",
+  "carousel": [
+    "MEDIA/img/carousel/0.png",
+    "MEDIA/img/carousel/1.png",
+    "MEDIA/img/carousel/2.png",
+    "MEDIA/img/carousel/3.png"
+  ],
+  "pages": [
+    {
+      "slug": "connect",
+      "title": "Connect",
+      "navLabel": "Connect",
+      "nav": true,
+      "tagline": "Find us, join us, follow along.",
+      "summary": "Social links and how to reach the organization.",
+      "type": "page",
+      "list": null,
+      "listLabel": null,
+      "category": null,
+      "tags": [],
+      "order": 30,
+      "accent": null,
+      "logo": null,
+      "postsLabel": null,
+      "media": [],
+      "source": "PAGES/CONNECT/page.md",
+      "sections": [
+        "come-to-a-meeting",
+        "follow-the-journey",
+        "get-in-touch"
+      ],
+      "words": 89,
+      "empty": false,
+      "published": true,
+      "updated": "2026-09-25"
+    },
+    {
+      "slug": "cwns",
+      "title": "Cyber Warfare and National Security",
+      "navLabel": "CWNS",
+      "nav": false,
+      "tagline": "We are a research group focused heavily on cybersecurity within the context of warfare.",
+      "summary": "Offensive security, malware analysis, and digital forensics in the context of modern conflict.",
+      "type": "team",
+      "list": null,
+      "listLabel": null,
+      "category": "Research",
+      "tags": [
+        "cyber warfare",
+        "malware",
+        "forensics"
+      ],
+      "order": 20,
+      "accent": "#8338ec",
+      "logo": null,
+      "postsLabel": null,
+      "media": [
+        {
+          "file": "PAGES/CWNS/media/6E97D597-3DA3-4FA1-BA39-5D969F4FF166.jpg",
+          "name": "6E97D597-3DA3-4FA1-BA39-5D969F4FF166.jpg",
+          "bytes": 3371222
+        },
+        {
+          "file": "PAGES/CWNS/media/98D5852A-420C-4C4D-AAE6-7359E1A4F566.jpg",
+          "name": "98D5852A-420C-4C4D-AAE6-7359E1A4F566.jpg",
+          "bytes": 2104161
+        },
+        {
+          "file": "PAGES/CWNS/media/IMG_5192.jpg",
+          "name": "IMG_5192.jpg",
+          "bytes": 196887
+        }
+      ],
+      "source": "PAGES/CWNS/page.md",
+      "sections": [
+        "about",
+        "gallery",
+        "mission",
+        "what-we-do",
+        "team",
+        "schedule",
+        "contact"
+      ],
+      "words": 172,
+      "empty": false,
+      "published": true,
+      "updated": "2026-09-25"
+    },
+    {
+      "slug": "episode",
+      "title": "EPISODE",
+      "navLabel": null,
+      "nav": false,
+      "tagline": "Our media team produces the podcast, videos, and posts that document everything we do.",
+      "summary": "Podcast, video, and social media for the organization.",
+      "type": "team",
+      "list": null,
+      "listLabel": null,
+      "category": "Media",
+      "tags": [
+        "podcast",
+        "video",
+        "social"
+      ],
+      "order": 30,
+      "accent": "#ffbe0b",
+      "logo": null,
+      "postsLabel": null,
+      "media": [],
+      "source": "PAGES/EPISODE/page.md",
+      "sections": [
+        "about",
+        "what-we-do",
+        "contact"
+      ],
+      "words": 56,
+      "empty": false,
+      "published": true,
+      "updated": "2026-09-25"
+    },
+    {
+      "slug": "events",
+      "title": "Events",
+      "navLabel": "Events",
+      "nav": true,
+      "tagline": "Meetings, trainings, and events.",
+      "summary": "Meetings, trainings, and events.",
+      "type": "index",
+      "list": "event",
+      "listLabel": "All events",
+      "category": null,
+      "tags": [],
+      "order": 40,
+      "accent": null,
+      "logo": null,
+      "postsLabel": null,
+      "media": [],
+      "source": "PAGES/EVENTS/page.md",
+      "sections": [
+        "adding-an-event"
+      ],
+      "words": 29,
+      "empty": false,
+      "published": true,
+      "updated": "2026-09-25"
+    },
+    {
+      "slug": "events/general-meeting",
+      "title": "General Meeting",
+      "type": "event",
+      "date": "2026-09-25",
+      "recurring": null,
+      "endDate": null,
+      "time": "6:00 PM",
+      "location": "NPB 1.226",
+      "kind": "meeting",
+      "tagline": "2026-09-25 | 6:00 PM | NPB 1.226",
+      "summary": "General Meeting, 6PM every Friday.",
+      "accent": "#ffbe0b",
+      "order": 1000,
+      "media": [],
+      "source": "PAGES/EVENTS/general-meeting.md",
+      "sections": [
+        "time-place",
+        "details"
+      ],
+      "words": 41,
+      "empty": false,
+      "published": true,
+      "updated": "2026-09-25"
+    },
+    {
+      "slug": "home",
+      "title": "Home",
+      "navLabel": "Home",
+      "nav": false,
+      "tagline": "The largest cybersecurity student organization at UTSA.",
+      "summary": "The largest cybersecurity student organization at UTSA.",
+      "type": "index",
+      "list": null,
+      "listLabel": null,
+      "category": null,
+      "tags": [],
+      "order": 1,
+      "accent": null,
+      "logo": null,
+      "postsLabel": null,
+      "media": [],
+      "source": "PAGES/HOME/page.md",
+      "sections": [
+        "about-our-mission"
+      ],
+      "words": 80,
+      "empty": false,
+      "published": true,
+      "updated": "2026-09-25"
+    },
+    {
+      "slug": "order404",
+      "title": "Order404",
+      "navLabel": null,
+      "nav": false,
+      "tagline": null,
+      "summary": null,
+      "type": "team",
+      "list": null,
+      "listLabel": null,
+      "category": "Creative",
+      "tags": [
+        "creative",
+        "media"
+      ],
+      "order": 40,
+      "accent": "#fb5607",
+      "logo": null,
+      "postsLabel": null,
+      "media": [],
+      "source": "PAGES/ORDER404/page.md",
+      "sections": [],
+      "words": 0,
+      "empty": true,
+      "published": false,
+      "updated": "2026-09-25"
+    },
+    {
+      "slug": "people/ana-moreno",
+      "title": "Ana Moreno",
+      "navLabel": "Ana Moreno",
+      "nav": false,
+      "tagline": "Marketing officer and Order404 member, filming and editing for the organization.",
+      "summary": "Marketing officer and Order404 member, filming and editing for the organization.",
+      "type": "staff",
+      "list": null,
+      "listLabel": null,
+      "category": "Marketing",
+      "tags": [
+        "marketing",
+        "order404",
+        "video"
+      ],
+      "order": 10,
+      "accent": "#ff006e",
+      "logo": "PAGES/PEOPLE/ana-moreno/media/headshot.jpg",
+      "postsLabel": null,
+      "media": [
+        {
+          "file": "PAGES/PEOPLE/ana-moreno/media/logo.png",
+          "name": "logo.png",
+          "bytes": 350573
+        }
+      ],
+      "source": "PAGES/PEOPLE/ana-moreno/page.md",
+      "sections": [
+        "about",
+        "gallery",
+        "mission",
+        "what-we-do",
+        "projects",
+        "contact"
+      ],
+      "words": 233,
+      "empty": false,
+      "published": true,
+      "updated": "2026-09-25"
+    },
+    {
+      "slug": "research",
+      "title": "Research",
+      "navLabel": "Research",
+      "nav": false,
+      "tagline": "The research groups where we go deep on a subfield.",
+      "summary": "The research groups where we go deep on a subfield.",
+      "type": "index",
+      "list": "team",
+      "listLabel": "Research groups",
+      "category": null,
+      "tags": [],
+      "order": 15,
+      "accent": null,
+      "logo": null,
+      "postsLabel": null,
+      "media": [],
+      "source": "PAGES/RESEARCH/page.md",
+      "sections": [
+        "about-research"
+      ],
+      "words": 40,
+      "empty": false,
+      "published": true,
+      "updated": "2026-09-25"
+    },
+    {
+      "slug": "staff",
+      "title": "Staff",
+      "navLabel": "Staff",
+      "nav": true,
+      "tagline": "The students who keep the organization running.",
+      "summary": "The students who keep the organization running.",
+      "type": "index",
+      "list": "staff",
+      "listLabel": "Officers and leads",
+      "category": null,
+      "tags": [],
+      "order": 20,
+      "accent": null,
+      "logo": null,
+      "postsLabel": null,
+      "media": [],
+      "source": "PAGES/STAFF/page.md",
+      "sections": [
+        "get-involved"
+      ],
+      "words": 27,
+      "empty": false,
+      "published": true,
+      "updated": "2026-09-25"
+    },
+    {
+      "slug": "teams",
+      "title": "Teams",
+      "navLabel": "Teams",
+      "nav": true,
+      "tagline": "Every team and research group in the organization.",
+      "summary": "Every team and research group in the organization.",
+      "type": "index",
+      "list": "team",
+      "listLabel": "All teams",
+      "category": null,
+      "tags": [],
+      "order": 10,
+      "accent": null,
+      "logo": null,
+      "postsLabel": null,
+      "media": [],
+      "source": "PAGES/TEAMS/page.md",
+      "sections": [
+        "how-teams-work"
+      ],
+      "words": 38,
+      "empty": false,
+      "published": true,
+      "updated": "2026-09-25"
+    }
+  ],
+  "posts": [
+    {
+      "id": "CWPost_001",
+      "page": "cwns",
+      "title": "Cyber Warfare Report",
+      "date": "2026-08-22",
+      "group": "research",
+      "source": "PAGES/CWNS/posts/CWPost_001.md",
+      "summary": "Cyber Warfare Report Analysis on modern cyber warfare tactics and defense mechanisms."
+    },
+    {
+      "id": "QPost_001",
+      "page": "cwns",
+      "title": "Quantum Cryptography Update 1",
+      "date": "2026-08-15",
+      "group": "research",
+      "source": "PAGES/CWNS/posts/QPost_001.md",
+      "summary": "Quantum Cryptography Update 1 This is the first update on quantum cryptography research."
+    },
+    {
+      "id": "QPost_002",
+      "page": "cwns",
+      "title": "Post-Quantum Security Approaches",
+      "date": "2026-08-29",
+      "group": "research",
+      "source": "PAGES/CWNS/posts/QPost_002.md",
+      "summary": "Post-Quantum Security Approaches A second update on the research of post-quantum security measures."
+    },
+    {
+      "id": "blogcard-example",
+      "page": "episode",
+      "title": "Welcome to EPISODE",
+      "date": "2026-08-30",
+      "group": "media",
+      "source": "PAGES/EPISODE/posts/blogcard-example.md",
+      "summary": "This is an example blog post showcasing our team's recent activities."
+    }
+  ]
+}

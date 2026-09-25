@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Page not found | UTSA Cyber Jedis</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <style>
+    body { display: grid; place-items: center; min-height: 100vh; }
+    .notfound { max-width: 34rem; padding: 3rem 1.5rem; text-align: center; }
+    .notfound h1 { font-size: clamp(2rem, 8vw, 3rem); text-transform: uppercase; letter-spacing: 0.03em; }
+    .notfound p { margin: 1rem 0 2rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="notfound">
+    <p class="eyebrow">404</p>
+    <h1>Page not found</h1>
+    <p>That address does not match a page on this site.</p>
+    <div class="btn-row" style="justify-content:center">
+      <a class="btn-chrome" href="/index.html">Home</a>
+      <a class="btn-chrome" href="/page.html?p=teams">Teams</a>
+      <a class="btn-chrome" href="/page.html?p=connect">Connect</a>
+    </div>
+  </div>
+</body>
+</html>

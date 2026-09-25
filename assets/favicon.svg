@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Cyber Jedis">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#b8bcc6"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="10" fill="#0b0b0d"/>
+  <path d="M32 12 L48 21 L48 38 C48 46 41 51 32 54 C23 51 16 46 16 38 L16 21 Z" fill="none" stroke="url(#g)" stroke-width="3"/>
+  <path d="M32 22 L32 44" stroke="#ffbe0b" stroke-width="4" stroke-linecap="round"/>
+  <path d="M23 28 L41 28" stroke="#3a86ff" stroke-width="4" stroke-linecap="round"/>
+</svg>
