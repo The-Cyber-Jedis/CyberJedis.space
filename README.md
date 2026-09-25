@@ -13,24 +13,38 @@ PAGES/
   HOME/page.md                 homepage content and widgets
   CONNECT/page.md
   TEAMS/
-    page.md                    catalog, auto-lists every team below
+    page.md                    index, groups every team by kind
     CWNS/
-      page.md                  a team is its own subpage
+      page.md
       media/
       posts/
     QUANTUM/
+      page.md
+      posts/
     ORDER404/
+      page.md
+      media/
   STAFF/
-    page.md                    the one people page
-    people/<slug>.md           one file per person
-    media/                     headshots
+    page.md                    index, groups every officer by division
+    keeban-villareal/
+      page.md                  one folder per officer
+      media/
+        headshot.png
+    hondo-limon/
+    gabriel-green/
+    adithyaa-sivamal/
+    vincent/
+    ana-moreno/
   EVENTS/
     general-meeting.md         event data, no index page
 ```
 
-A page is any folder containing `page.md`. Folders can nest, and the URL
-is the folder path: `PAGES/TEAMS/CWNS/page.md` is served at
-`page.html?p=teams/cwns`.
+**Every page is a `page.md` in its own folder.** A team and an officer are
+structured identically, which is the whole point: adding either one is the
+same three steps.
+
+The URL is the folder path, so `PAGES/STAFF/ana-moreno/page.md` is served
+at `page.html?p=staff/ana-moreno`.
 
 ## Adding or editing a page
 
@@ -52,10 +66,13 @@ To hide a page without deleting it, set `published: false`.
 | `navLabel` | Shorter label for the site nav |
 | `nav` | `true` puts the page in the primary nav |
 | `order` | Sort weight for nav and index grids |
-| `type` | `page`, `team`, `event`, or `index` |
+| `type` | `page`, `team`, `staff`, `event`, or `index` |
+| `kind` | Label above the page title, such as `Research group` |
 | `list` | On an `index` page, the child `type` to auto list |
 | `listLabel` | Heading above the auto generated grid |
+| `groupBy` | Frontmatter key to group the listing by, such as `division` |
 | `category` | Grouping label, also filters index children |
+| `division` | Grouping label for staff, used with `groupBy` |
 | `tagline` | One line under the title |
 | `summary` | One line used on cards |
 | `tags` | `[tag-a, tag-b]` |
@@ -63,7 +80,7 @@ To hide a page without deleting it, set `published: false`.
 | `logo` | Media file used as the mark, defaults to `logo.*` |
 | `schedule` | Short meeting line shown in the hero |
 | `links` | `key: url` pairs rendered as buttons |
-| `people` | `true` renders the `people/` folder as a grid |
+| `contact` | `key: url` pairs rendered as a labelled contact block |
 | `postsLabel` | Heading for the page's post list, defaults to Updates |
 | `show` | Homepage widgets, for example `teams: 6, posts: 3` |
 | `published` | `false` hides the page from all listings |
@@ -75,26 +92,21 @@ Relative links and images in `page.md` are resolved against that page's
 own folder, so `media/headshot.png` works wherever the page is served
 from.
 
-## People
+## Adding an officer
 
-Everyone lives on the staff page, one file per person in
-`PAGES/STAFF/people/`. Copy `_template.md` to make a new one:
+1. Create `PAGES/STAFF/<name>/`
+2. Copy `TEMPLATES/WEBPAGE_TEMPLATE.md` to `page.md` in it
+3. Set `type: staff`, `kind:` for the role, `division:` for the group
+4. Drop a headshot in `media/` and set `logo: media/<file>`
+5. Put their links in `contact:` and write the bio under the frontmatter
+6. Build and commit as usual
 
-```
----
-name: Full Name
-role: Role or position
-order: 10
-photo: [file stem in media/, extension optional]
-tags: [tag-a, tag-b]
----
+They appear on the staff index under their division, and the card links to
+their page. No headshot yet is fine, the card falls back to a generated
+initials avatar.
 
-Optional paragraph, shown under the grid.
-```
-
-`photo` is the file stem, so `photo: ana` picks up `media/ana.png` or
-`media/ana.jpg`. Leave it out and the card gets a generated initials
-avatar instead of a broken image. Lower `order` sorts first.
+Roles live on the officer's page, not on the team page, so a role change is
+one edit in one file.
 
 ## Images
 

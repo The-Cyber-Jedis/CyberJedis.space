@@ -42,7 +42,3 @@ run it.
 
 Meetings are announced on Discord. Progress updates are posted as they
 happen.
-
-## Contact
-
-- Discord: https://discord.gg/B5vuHqQBFe

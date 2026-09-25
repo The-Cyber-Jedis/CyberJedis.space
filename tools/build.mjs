@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const PAGES_DIR = path.join(ROOT, "PAGES");
 const DATA_DIR = path.join(ROOT, "data");
-const SKIP_DIRS = new Set(["media", "posts", "people"]);
+const SKIP_DIRS = new Set(["media", "posts"]);
 const IMAGE_RE = /\.(jpg|jpeg|png|gif|webp|avif|svg)$/i;
 
 const ACCENTS = {
@@ -206,19 +206,21 @@ async function readPage(pageDir) {
     kind: data.kind || null,
     navLabel: data.navLabel || null,
     nav: Boolean(data.nav),
-    tagline: data.tagline || firstSentence(body) || null,
+    tagline: data.tagline || null,
     summary: data.summary || null,
     type: data.type || "page",
     list: data.list || null,
     listLabel: data.listLabel || null,
+    groupBy: data.groupBy || null,
     category: data.category || null,
+    division: data.division || null,
     tags: asArray(data.tags),
     order: typeof data.order === "number" ? data.order : 100,
     accent: accentHex(data.accent),
     logo: logoMedia ? logoMedia.lg : null,
     logoSm: logoMedia ? logoMedia.sm : null,
     postsLabel: data.postsLabel || null,
-    people: data.people === true,
+    contact: data.contact && typeof data.contact === "object" ? data.contact : null,
     media: media.filter((m) => m.name !== logoName),
     source: path.relative(ROOT, mdPath).split(path.sep).join("/"),
     dir: path.relative(ROOT, pageDir).split(path.sep).join("/"),
@@ -279,6 +281,8 @@ async function collectEvents() {
       location: where,
       kind: null,
       category: data.category || "meeting",
+      division: null,
+      contact: null,
       tagline: [data.recurring ? `Every ${data.recurring}` : data.date, when, where]
         .filter(Boolean)
         .join(" | "),
@@ -324,36 +328,6 @@ async function pageDirs(dir, depth = 0) {
   return out;
 }
 
-async function collectPeople(page, media) {
-  if (!page.people) return [];
-  const dir = path.join(PAGES_DIR, ...page.slug.split("/").map((s) => s.toUpperCase()), "people");
-  if (!existsSync(dir)) return [];
-  const people = [];
-  for (const f of (await readdir(dir)).filter((f) => f.endsWith(".md") && !f.startsWith("_")).sort()) {
-    const file = path.join(dir, f);
-    const { data, body } = parseFrontmatter(await readFile(file, "utf8"));
-    const slug = f.replace(/\.md$/, "");
-    const stem = data.photo ? String(data.photo).replace(/\.[^.]+$/, "") : "";
-    const hit = stem ? media.find((m) => m.name === `${path.basename(stem)}.png` || m.name === `${path.basename(stem)}.jpg` || m.name.startsWith(`${path.basename(stem)}.`)) : null;
-    people.push({
-      slug,
-      page: page.slug,
-      name: data.name || slug,
-      role: data.role || "",
-      order: typeof data.order === "number" ? data.order : 100,
-      tags: asArray(data.tags),
-      accent: accentHex(data.accent),
-      photo: hit ? hit.sm : null,
-      widthSm: hit ? hit.widthSm : null,
-      heightSm: hit ? hit.heightSm : null,
-      note: plainText(body) || null,
-      source: path.relative(ROOT, file).split(path.sep).join("/")
-    });
-  }
-  people.sort((a, b) => a.order - b.order || a.name.localeCompare(b.name));
-  return people;
-}
-
 async function build() {
   const pages = [];
   for (const dir of await pageDirs(PAGES_DIR)) {
@@ -365,13 +339,6 @@ async function build() {
   const posts = [];
   for (const page of pages) posts.push(...(await collectPosts(page)));
 
-  const people = [];
-  for (const page of pages) {
-    const dir = path.join(PAGES_DIR, ...page.slug.split("/").map((s) => s.toUpperCase()));
-    const media = existsSync(path.join(dir, "media")) ? await collectMedia(dir) : [];
-    people.push(...(await collectPeople(page, media)));
-  }
-
   const events = await collectEvents();
   pages.push(...events);
   pages.sort((a, b) => a.slug.localeCompare(b.slug));
@@ -380,7 +347,6 @@ async function build() {
     generated: new Date().toISOString().slice(0, 10),
     carousel: await collectCarousel(),
     pages,
-    people,
     posts
   };
 
@@ -389,7 +355,6 @@ async function build() {
 
   const counts = {
     pages: pages.length,
-    people: people.length,
     empty: pages.filter((p) => p.empty && p.type !== "index").length,
     posts: posts.length,
     events: events.length,

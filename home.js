@@ -144,26 +144,31 @@
     const body = CJ.renderBody(entry);
     if (body) out.push(`<div class="container">${body}</div>`);
 
-    const middle = [];
+    out.push(`<div class="container">${joinBand()}</div>`);
+
+    const block = (title, inner, more) => `<div class="container">${CJ.block(title, inner, more)}</div>`;
 
     if (show.teams) {
       const teams = byType("team").slice(0, show.teams);
-      middle.push(
-        `<div class="container">${CJ.block("Teams and research groups", CJ.cardGrid(teams, { empty: "No teams published yet." }), "teams")}</div>`
-      );
+      out.push(block("Teams and research groups", CJ.cardGrid(teams, { empty: "No teams published yet." }), "teams"));
     }
 
     if (show.events) {
-      middle.push(`<div class="container">${CJ.block("Upcoming", eventList(events(show.events)))}</div>`);
+      out.push(block("Upcoming", eventList(events(show.events))));
     }
 
     if (show.staff) {
-      middle.push(
-        `<div class="container">${CJ.block(
-          "Officers and leads",
-          CJ.peopleGrid(null, { empty: "No staff listed yet.", cols: "row-cols-3 row-cols-lg-6" }),
+      const officers = byType("staff").slice(0, show.staff);
+      out.push(
+        block(
+          "Officers",
+          officers.length
+            ? `<div class="row row-cols-2 row-cols-sm-3 row-cols-lg-6 g-3 cj-reveal">` +
+              officers.map((o) => `<div class="col">${CJ.card(o)}</div>`).join("") +
+              `</div>`
+            : `<div class="cj-empty"><p class="mb-0">No officers listed yet.</p></div>`,
           "staff"
-        )}</div>`
+        )
       );
     }
 
@@ -185,26 +190,22 @@
           </div>`;
         })
         .join("");
-      middle.push(
-        `<div class="container">${CJ.block(
+      out.push(
+        block(
           "Latest updates",
-          cards ? `<div class="row row-cols-1 row-cols-sm-3 g-3 cj-reveal">${cards}</div>` : `<div class="cj-empty"><p class="mb-0">No updates published yet.</p></div>`
-        )}</div>`
+          cards
+            ? `<div class="row row-cols-1 row-cols-sm-3 g-3 cj-reveal">${cards}</div>`
+            : `<div class="cj-empty"><p class="mb-0">No updates published yet.</p></div>`
+        )
       );
     }
 
     if (shots.length) {
-      middle.push(
-        `<div class="container">${CJ.block("Featured", carousel(shots))}</div>`
-      );
+      out.push(block("From around the organization", carousel(shots)));
     }
-
-    out.push(`<div class="container"><div class="mb-4">${joinBand()}</div></div>`);
-    out.push(...middle);
 
     main.innerHTML = out.join("");
     CJ.bindGallery(main);
-    CJ.bindPeople(main);
     window.dispatchEvent(new Event("cj:render"));
   }
 

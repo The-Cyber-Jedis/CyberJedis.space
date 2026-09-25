@@ -38,7 +38,6 @@
     main.innerHTML = `<div class="container">${parts.join("")}</div>`;
     CJ.bindGallery(main);
     CJ.bindFilters(main);
-    CJ.bindPeople(main);
     if (entry.published === false) main.classList.add("cj-unpublished");
   }
 

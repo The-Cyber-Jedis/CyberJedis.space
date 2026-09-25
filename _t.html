@@ -1,0 +1,55 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><link rel="stylesheet" href="assets/vendor/bootstrap/bootstrap.min.css"><link rel="stylesheet" href="styles.css"><script src="config.js"></script><script src="assets/vendor/marked.min.js"></script><script src="site.js"></script><script src="assets/vendor/bootstrap/bootstrap.bundle.min.js"></script></head>
+<body><div class="cj-bg"></div><header id="site-header"></header><main id="main"></main><footer id="site-footer"></footer>
+<script>
+const log=[];const ok=(n,c,e="")=>log.push(`${c?"PASS":"FAIL"} ${n} ${e}`);
+const main=()=>document.getElementById("main");
+const paint=async(e)=>{const p=[CJ.hero(e)];if(e.empty)p.push(CJ.emptyState());else{p.push(CJ.renderBody(e));p.push(await CJ.postsBlock(e.slug,e.postsLabel));}if(e.list)p.push(CJ.renderIndex(e));main().innerHTML=p.join("");return main();};
+(async()=>{
+ const m=await CJ.loadManifest();
+ ok("14 pages",m.pages.length===14,`n=${m.pages.length}`);
+ ok("no people key",!("people" in m));
+ ok("6 staff pages",m.pages.filter(p=>p.type==="staff").length===6);
+ ok("3 teams",m.pages.filter(p=>p.type==="team").length===3);
+ const staff=await paint(await CJ.loadEntry(CJ.findPage("staff")));
+ const st=main().textContent;
+ ok("no Ana bio on index",!st.includes("Fall 2025")&&!st.includes("Meet the Officers"),st.slice(0,90));
+ ok("divisions grouped",["Executive","Research","Marketing"].every(d=>st.includes(d)));
+ const cards=[...main().querySelectorAll(".cj-card")];
+ ok("6 cards",cards.length===6,`n=${cards.length}`);
+ ok("cards link to staff pages",cards.every(c=>c.getAttribute("href").includes("page.html?p=staff%2F")));
+ ok("no 'Other' group",!st.includes("Other"));
+ ok("avatar fallback present",main().querySelectorAll(".cj-card-mark-avatar").length===3,`n=${main().querySelectorAll(".cj-card-mark-avatar").length}`);
+ const ana=await paint(await CJ.loadEntry(CJ.findPage("staff/ana-moreno")));
+ const at=main().textContent;
+ ok("ana bio on her page",at.includes("Fall 2025")&&at.includes("Meet the Officers"));
+ ok("ana contact rows",main().querySelectorAll(".cj-contact-row a").length===3);
+ ok("ana contact labels",["Email","Discord","LinkedIn"].every(l=>at.includes(l)));
+ ok("ana photo hero",!!main().querySelector(".cj-hero-mark-person"));
+ ok("ana lead once",(at.match(/Ana Moreno is a marketing officer/g)||[]).length===1,(at.match(/Ana Moreno is a marketing officer/g)||[]).length);
+ ok("ana one contact block",main().querySelectorAll("#contact").length===1);
+ const hondo=await paint(await CJ.loadEntry(CJ.findPage("staff/hondo-limon")));
+ ok("hondo lead once",(main().textContent.match(/Hondo Limon is a lead/g)||[]).length===1);
+ ok("hondo contact one",main().querySelectorAll(".cj-contact-row").length===1);
+ const cwEntry=await CJ.loadEntry(CJ.findPage("teams/cwns"));
+ await paint(cwEntry);
+ ok("cwns no roles section",!cwEntry.sections.includes("team")&&!main().textContent.includes("CWNS Assistant Lead"));
+ ok("cwns no contact section",!cwEntry.sections.includes("contact"),cwEntry.sections.join(","));
+ ok("cwns has discord button",!!main().querySelector(".btn-jedis,.btn-outline-jedis"));
+ ok("cwns gallery",main().querySelectorAll(".cj-gallery-slide").length===3);
+ ok("cwns updates",main().textContent.includes("Cyber Warfare Report"));
+ const teams=await paint(await CJ.loadEntry(CJ.findPage("teams")));
+ const tt=main().textContent;
+ ok("teams grouped by kind",["Research group","Project team"].every(g=>tt.includes(g)));
+ ok("3 team cards",main().querySelectorAll(".cj-card").length===3,`n=${main().querySelectorAll(".cj-card").length}`);
+ ok("order404 published",m.pages.find(p=>p.slug==="teams/order404").published===true);
+ const o=await paint(await CJ.loadEntry(CJ.findPage("teams/order404")));
+ ok("order404 renders",main().textContent.includes("Order404")&&!!main().querySelector(".cj-hero-mark"));
+ const DEV=[/pull request/i,/\.md\b/,/\bPAGES\//i,/TEMPLATES/i,/node tools/i,/manifest/i,/\bcopy the\b/i,/\bcommit\b/i,/\bfrontmatter\b/i,/\bsubpage\b/i,/this site\b/i,/derived/i];
+ const hits=[];
+ for(const p of m.pages){await paint(await CJ.loadEntry(p));const t=main().textContent;const f=DEV.filter(r=>r.test(t)).map(String);if(f.length)hits.push(p.slug+":"+f.join(","));}
+ ok("no dev copy in any page text",hits.length===0,hits.join(" | "));
+ const ev=m.pages.find(p=>p.type==="event"); await paint(await CJ.loadEntry(ev));
+ ok("event page ok",main().textContent.includes("General Meeting"));
+ document.documentElement.innerHTML=`<body><pre>${log.join("\n")}\nTOTAL ${log.length} FAILED ${log.filter(x=>x.startsWith("FAIL")).length}</pre></body>`;
+})();
+</script></body></html>

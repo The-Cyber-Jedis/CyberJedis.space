@@ -36,7 +36,7 @@ We want students to be able to recognize the signs of an ongoing
 cyberattack and respond to it promptly, and to understand the risks our
 nation's industries and military face as cyberspace keeps changing.
 
-## What We Do
+## What we do
 
 Our research group specializes in hands-on training, including topics such
 as:
@@ -45,17 +45,7 @@ as:
 - Case studies
 - Tool training and workshops
 
-## Team
-
-- **Hondo Limon** - CWNS Lead
-- **Gabriel Green** - CWNS Lead
-- **Adithyaa Sivamal** - CWNS Assistant Lead
-
 ## Schedule
 
 - Wednesdays - 6:30 PM - 1.202 NPB, Main Campus
 - Thursdays - 6:30 PM - 1.202 NPB, Main Campus
-
-## Contact
-
-- Discord: https://discord.gg/sthbyPkDRx

@@ -157,7 +157,7 @@ const CJ = (() => {
     const res = await fetch(entry.source, { cache: "no-cache" });
     if (!res.ok) throw new Error("This page could not be loaded. Please try again in a moment.");
     const { data, body } = parseFrontmatter(await res.text());
-    return { ...entry, meta: { ...entry, ...data }, body };
+    return { ...data, ...entry, meta: { ...entry, ...data }, body };
   }
 
   function navPages() {
@@ -254,10 +254,25 @@ const CJ = (() => {
     }
   }
 
+  const LABELS = {
+    email: "Email",
+    discord: "Discord",
+    linkedin: "LinkedIn",
+    instagram: "Instagram",
+    youtube: "YouTube",
+    twitter: "Twitter",
+    github: "GitHub",
+    rowdylink: "RowdyLink",
+    website: "Website",
+    slack: "Slack"
+  };
+
+  const label = (key) => LABELS[key.toLowerCase()] || key.charAt(0).toUpperCase() + key.slice(1);
+
   function linkRow(links) {
     const items = Object.entries(links)
       .filter(([k]) => k !== "logo")
-      .map(([k, v]) => `<a class="btn btn-outline-jedis btn-sm" href="${esc(v)}">${esc(k)}</a>`)
+      .map(([k, v]) => `<a class="btn btn-outline-jedis btn-sm" href="${esc(v)}">${esc(label(k))}</a>`)
       .join("\n        ");
     return items ? `<div class="d-flex flex-wrap gap-2 mt-4">\n        ${items}\n      </div>` : "";
   }
@@ -274,7 +289,8 @@ const CJ = (() => {
     const accent = accentOf(entry);
     const kind = kindOf(entry);
     const mark = entry.logo
-      ? `<img class="cj-hero-mark" src="${esc(entry.logoSm || entry.logo)}" alt="${esc(entry.title)} logo" decoding="async">`
+      ? `<img class="cj-hero-mark${isPerson(entry) ? " cj-hero-mark-person" : ""}" ` +
+        `src="${esc(entry.logo || entry.logoSm)}" alt="${esc(entry.title)}" decoding="async">`
       : "";
     const meta = [];
     if (entry.category) meta.push(`<span class="cj-tag cj-tag-accent">${esc(entry.category)}</span>`);
@@ -285,7 +301,7 @@ const CJ = (() => {
         <div class="container">
           <div class="row align-items-center g-4">
             ${mark ? `<div class="col-auto">${mark}</div>` : ""}
-            <div class="${mark ? "col" : "col-12"}">
+            <div class="${mark ? (isPerson(entry) ? "col" : "col") : "col-12"}">
               ${kind ? `<p class="cj-eyebrow">${esc(kind)}</p>` : ""}
               <h1>${esc(entry.title)}</h1>
               ${entry.tagline ? `<p class="cj-hero-lede">${esc(entry.tagline)}</p>` : ""}
@@ -297,11 +313,33 @@ const CJ = (() => {
       </section>`;
   }
 
+
+  function contactBlock(entry) {
+    const rows = Object.entries(entry.contact || {})
+      .filter(([, v]) => v)
+      .map(
+        ([k, v]) =>
+          `<div class="cj-contact-row"><span class="cj-contact-label">${esc(label(k))}</span>` +
+          `<a href="${esc(v)}" rel="noopener noreferrer">${esc(
+            v.replace(/^mailto:/, "").replace(/^https?:\/\//, "")
+          )}</a></div>`
+      )
+      .join("");
+    if (!rows) return "";
+    return `
+      <section class="cj-block" id="contact">
+        <div class="cj-block-head"><h2 class="cj-block-title">Contact</h2></div>
+        <div class="cj-contact">${rows}</div>
+      </section>`;
+  }
+
+  const isPerson = (entry) => entry?.type === "staff";
+
   function mark(entry) {
     if (entry.logo) {
       return (
-        `<img class="cj-card-mark" src="${esc(entry.logoSm || entry.logo)}" alt="" ` +
-        `${entry.logoSmW ? `width="${entry.logoSmW}" ` : ""}loading="lazy" decoding="async">`
+        `<img class="cj-card-mark${isPerson(entry) ? " cj-card-mark-person" : ""}" ` +
+        `src="${esc(entry.logoSm || entry.logo)}" alt="" loading="lazy" decoding="async">`
       );
     }
     return `<img class="cj-card-mark cj-card-mark-avatar" src="${avatar(entry.title, 128)}" alt="" width="128" height="128" aria-hidden="true">`;
@@ -313,23 +351,25 @@ const CJ = (() => {
     const kind =
       entry.type === "event"
         ? entry.date || (entry.recurring ? `Every ${entry.recurring}` : "Event")
-        : entry.type === "staff"
-        ? "Staff"
+        : isPerson(entry)
+        ? entry.kind || "Officer"
         : entry.category || "Team";
-    const haystack = `${entry.title} ${text} ${(entry.tags || []).join(" ")} ${entry.category || ""}`.toLowerCase();
+    const haystack =
+      `${entry.title} ${text} ${entry.kind || ""} ${(entry.tags || []).join(" ")} ` +
+      `${entry.category || ""} ${entry.division || ""}`.toLowerCase();
     const tags = (entry.tags || [])
       .slice(0, 3)
       .map((t) => `<span class="cj-tag">${esc(t)}</span>`)
       .join("");
     return `
-      <a class="cj-card" href="${pageUrl(entry.slug)}" style="--cj-accent:${accent}"
+      <a class="cj-card${isPerson(entry) ? " cj-card-person" : ""}" href="${pageUrl(entry.slug)}" style="--cj-accent:${accent}"
          data-kind="${esc(kind)}" data-hay="${esc(haystack)}">
         <div class="d-flex gap-3 align-items-start">
           ${mark(entry)}
           <div class="flex-grow-1 min-width-0">
             <p class="cj-card-kind">${esc(kind)}</p>
             <h3 class="cj-card-title">${esc(entry.title)}</h3>
-            ${text ? `<p class="cj-card-text">${esc(text)}</p>` : ""}
+            ${text && !isPerson(entry) ? `<p class="cj-card-text">${esc(text)}</p>` : ""}
             ${tags ? `<div class="d-flex flex-wrap gap-1 mt-2">${tags}</div>` : ""}
           </div>
         </div>
@@ -432,40 +472,6 @@ const CJ = (() => {
       </section>`;
   }
 
-  function peopleGrid(list, opts = {}) {
-    const people = list || state.manifest?.people || [];
-    if (!people.length) {
-      return `<div class="cj-empty"><p class="mb-0">${esc(opts.empty || "No staff listed yet.")}</p></div>`;
-    }
-    const cols = opts.cols || "row-cols-2 row-cols-sm-3 row-cols-lg-4";
-    const cells = people
-      .map(
-        (p) => `
-      <div class="col">
-        <div class="cj-person" style="--cj-accent:${accentOf({ slug: p.slug, accent: p.accent })}">
-          ${
-            p.photo
-              ? `<img class="cj-person-photo" src="${esc(p.photo)}" alt="${esc(p.name)}" ` +
-                `${p.widthSm ? `width="${p.widthSm}" ` : ""}${p.heightSm ? `height="${p.heightSm}" ` : ""}` +
-                `loading="lazy" decoding="async">`
-              : `<img class="cj-person-photo cj-person-photo-avatar" src="${avatar(p.name)}" alt="" width="400" height="400" aria-hidden="true">`
-          }
-          <p class="cj-person-name">${esc(p.name)}</p>
-          ${p.role ? `<p class="cj-person-role">${esc(p.role)}</p>` : ""}
-          ${
-            p.tags && p.tags.length
-              ? `<div class="d-flex flex-wrap gap-1 justify-content-center mt-2">${p.tags
-                  .map((t) => `<span class="cj-tag">${esc(t)}</span>`)
-                  .join("")}</div>`
-              : ""
-          }
-        </div>
-      </div>`
-      )
-      .join("");
-    return `<div class="row ${cols} g-3 cj-reveal">${cells}</div>`;
-  }
-
   function renderBody(entry) {
     const { lead, sections } = splitSections(entry.body);
     const blocks = [];
@@ -482,46 +488,16 @@ const CJ = (() => {
         return;
       }
       const inner = md(s.lines.join("\n"), entry.dir).trim();
-      if (!inner) return;
-      const content =
-        key === "people"
-          ? peopleGrid()
-          : `<div class="cj-prose">${inner}</div>`;
+      if (!inner && key !== "contact") return;
       blocks.push(
-        `<section class="cj-block"><div class="cj-block-head"><h2 class="cj-block-title">${esc(s.heading)}</h2></div>${content}</section>`
+        `<section class="cj-block" id="${key}"><div class="cj-block-head"><h2 class="cj-block-title">${esc(s.heading)}</h2></div>` +
+          `<div class="cj-prose">${inner}</div></section>`
       );
     });
 
-    if (entry.people) {
-      const people = state.manifest?.people || [];
-      blocks.unshift(
-        `<section class="cj-block"><div class="cj-block-head"><h2 class="cj-block-title">People</h2></div>` +
-          `${peopleGrid(people, { empty: "No staff listed yet." })}</section>`
-      );
-      const notes = people
-        .map((p) => (p.note ? `<article class="cj-post"><p class="cj-post-kind">${esc(p.name)}</p><p class="mb-0">${esc(p.note)}</p></article>` : ""))
-        .filter(Boolean)
-        .join("");
-      if (notes) {
-        blocks.push(
-          `<section class="cj-block"><div class="cj-block-head"><h2 class="cj-block-title">Notes</h2></div>` +
-            `<div class="row row-cols-1 row-cols-lg-2 g-3 cj-reveal">${notes}</div></section>`
-        );
-      }
-    }
+    if (entry.contact) blocks.push(contactBlock(entry));
+
     return blocks.join("");
-  }
-
-  function bindPeople(root) {
-    root.querySelectorAll("img[data-avatar]").forEach((img) => {
-      const name = img.closest(".cj-person")?.querySelector(".cj-person-name")?.textContent?.trim();
-      if (!name) return;
-      img.setAttribute("src", avatar(name));
-      img.setAttribute("alt", "");
-      img.setAttribute("aria-hidden", "true");
-      img.classList.add("cj-person-photo-avatar");
-      img.removeAttribute("data-avatar");
-    });
   }
 
   function emptyState() {
@@ -546,16 +522,47 @@ const CJ = (() => {
   function renderIndex(entry) {
     const kids = children(entry);
     if (!kids.length) return "";
+
+    const toolbar = `
+      <div class="cj-toolbar">
+        <input class="cj-search" type="search" placeholder="Search" aria-label="Search" data-search>
+        <div class="cj-chips" data-chips></div>
+      </div>`;
+
+    const cols = isPerson(entry) ? "row-cols-2 row-cols-sm-3 row-cols-lg-4" : "row-cols-1 row-cols-sm-2 row-cols-lg-3";
+
+    if (entry.groupBy) {
+      const field = entry.groupBy;
+      const groups = new Map();
+      for (const k of kids) {
+        const g = k[field] || "Other";
+        if (!groups.has(g)) groups.set(g, []);
+        groups.get(g).push(k);
+      }
+      const order = [...new Set(kids.map((k) => k[field] || "Other"))];
+      return order
+        .map((g) => {
+          const members = groups.get(g);
+          return `
+      <section class="cj-block">
+        <div class="cj-block-head">
+          <h2 class="cj-block-title">${esc(g)}</h2>
+        </div>
+        <div class="row ${cols} g-3 cj-reveal" data-card-grid>
+          ${members.map((k) => `<div class="col">${card(k)}</div>`).join("")}
+        </div>
+      </section>`;
+        })
+        .join("");
+    }
+
     return `
       <section class="cj-block">
         <div class="cj-block-head">
           <h2 class="cj-block-title">${esc(entry.listLabel || "Browse")}</h2>
         </div>
-        <div class="cj-toolbar">
-          <input class="cj-search" type="search" placeholder="Search" aria-label="Search" data-search>
-          <div class="cj-chips" data-chips></div>
-        </div>
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3 cj-reveal" data-card-grid>
+        ${toolbar}
+        <div class="row ${cols} g-3 cj-reveal" data-card-grid>
           ${kids.map((k) => `<div class="col">${card(k)}</div>`).join("")}
         </div>
         <p class="cj-none mt-3" data-no-results hidden>Nothing matched that search.</p>
@@ -624,7 +631,6 @@ const CJ = (() => {
     renderBody,
     renderIndex,
     cardGrid,
-    peopleGrid,
     card,
     children,
     postsFor,
@@ -632,7 +638,6 @@ const CJ = (() => {
     sectionHtml,
     bindGallery,
     bindFilters,
-    bindPeople,
     emptyState,
     pageUrl
   };

@@ -915,3 +915,79 @@ a.cj-post-title:hover {
     transition-duration: 0.001ms !important;
   }
 }
+
+/* ---------- People ---------- */
+
+.cj-card-person {
+  align-items: center;
+  text-align: center;
+}
+
+.cj-card-person > div {
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: center !important;
+  width: 100%;
+}
+
+.cj-card-person .cj-card-text,
+.cj-card-person .cj-card-kind,
+.cj-card-person .cj-card-title {
+  text-align: center;
+}
+
+.cj-card-person .cj-card-tags,
+.cj-card-person .d-flex.flex-wrap.gap-1 {
+  justify-content: center;
+}
+
+.cj-card-mark-person {
+  width: 96px;
+  height: 96px;
+  flex: 0 0 96px;
+  object-fit: cover;
+  object-position: center 18%;
+  border-radius: 50%;
+  padding: 0;
+}
+
+.cj-hero-mark-person {
+  width: 152px;
+  height: 190px;
+  flex: 0 0 152px;
+  object-fit: cover;
+  object-position: center 18%;
+  padding: 0;
+}
+
+.cj-contact {
+  display: grid;
+  gap: 0.5rem;
+  max-width: 34rem;
+}
+
+.cj-contact-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.9rem;
+  background: var(--cj-surface);
+  border: 1px solid var(--cj-line);
+  border-left: 3px solid var(--cj-accent, var(--cj-ink));
+  border-radius: var(--cj-radius);
+  padding: 0.7rem 0.9rem;
+}
+
+.cj-contact-label {
+  flex: 0 0 6rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cj-muted);
+}
+
+.cj-contact-row a {
+  font-size: 0.82rem;
+  word-break: break-all;
+}
