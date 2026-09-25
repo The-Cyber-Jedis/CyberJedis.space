@@ -1,22 +1,19 @@
 (() => {
   const main = document.getElementById("main");
-  const pages = () => (window.__manifest?.pages || []);
+  const c = window.siteConfig;
 
-  const byType = (type, extra) =>
+  const pages = () => window.__manifest?.pages || [];
+  const byFolder = (name) =>
     pages()
-      .filter((p) => p.type === type && p.published !== false)
-      .filter(extra || (() => true));
+      .filter((p) => p.folder === name && !p.isIndex && p.featured !== false)
+      .sort((a, b) => (a.order ?? 100) - (b.order ?? 100));
+  const index = (name) => pages().find((p) => p.isIndex && p.indexFor === name);
 
   const fmtDate = (iso) => {
     if (!iso) return "";
     const d = new Date(`${iso}T00:00:00`);
     if (Number.isNaN(d.getTime())) return iso;
-    return d.toLocaleDateString(undefined, {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-      year: "numeric"
-    });
+    return d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric" });
   };
 
   const fmtTime = (t) => {
@@ -28,9 +25,11 @@
 
   function events(limit) {
     const today = new Date().toISOString().slice(0, 10);
-    const dated = byType("event", (p) => p.date && p.date >= today);
-    const recurring = byType("event", (p) => p.recurring);
-    return [...dated, ...recurring].slice(0, limit);
+    const all = pages()
+      .filter((p) => p.folder === "EVENTS" && p.date)
+      .sort((a, b) => a.date.localeCompare(b.date));
+    const upcoming = all.filter((e) => e.date >= today);
+    return (upcoming.length ? upcoming : all).slice(0, limit);
   }
 
   function eventList(items) {
@@ -40,7 +39,7 @@
         (e) => `
       <div class="cj-event" style="--cj-accent:${CJ.accentOf(e)}">
         <div class="cj-event-when">
-          <span class="cj-event-date">${e.date ? CJ.esc(fmtDate(e.date)) : CJ.esc(`Every ${e.recurring}`)}</span>
+          <span class="cj-event-date">${CJ.esc(fmtDate(e.date))}</span>
           ${e.time ? `<span class="cj-event-time">${CJ.esc(fmtTime(e.time))}</span>` : ""}
         </div>
         <div class="cj-event-body">
@@ -75,16 +74,15 @@
   }
 
   function joinBand() {
-    const c = window.siteConfig;
     const discord = c.socialLinks?.discord || "#";
     return `
       <section class="cj-cta">
         <div class="row g-4 align-items-center">
           <div class="col-lg">
             <h2>Come to a general meeting</h2>
-            <p>${CJ.esc(c.contact?.meetingDay || "Friday")} at ${CJ.esc(c.contact?.defaultMeetingTime || "6:00 PM")} in ${CJ.esc(
-      c.contact?.defaultLocation || "NPB 1.226"
-    )}. No experience required.</p>
+            <p>${CJ.esc(c.contact?.meetingDay || "Friday")} at ${CJ.esc(
+      c.contact?.defaultMeetingTime || "6:00 PM"
+    )} in ${CJ.esc(c.contact?.defaultLocation || "NPB 1.226")}. No experience required.</p>
           </div>
           <div class="col-lg-auto">
             <div class="d-flex flex-wrap gap-2">
@@ -96,7 +94,7 @@
       </section>`;
   }
 
-  function hero(entry, c) {
+  function hero(entry) {
     return `
       <section class="cj-hero cj-hero-home">
         <div class="container">
@@ -118,17 +116,15 @@
   async function render() {
     let entry;
     try {
-      const m = await CJ.loadManifest();
-      window.__manifest = m;
+      window.__manifest = await CJ.loadManifest();
       entry = await CJ.loadEntry(CJ.findPage("home"));
     } catch (err) {
-      main.innerHTML = `<div class="container"><div class="cj-empty mt-5"><h2>Build required</h2><p class="mb-0">${CJ.esc(
+      main.innerHTML = `<div class="container"><div class="cj-empty mt-5"><h2>Something went wrong</h2><p class="mb-0">${CJ.esc(
         err.message
       )}</p></div></div>`;
       return;
     }
 
-    const c = window.siteConfig;
     document.title = `${c.siteName} | ${c.siteTagline}`;
     const meta = document.createElement("meta");
     meta.name = "description";
@@ -137,72 +133,67 @@
 
     CJ.mountShell("home");
 
-    const show = entry.meta.show || {};
-    const shots = window.__manifest.carousel || [];
-    const out = [hero(entry, c)];
+    const out = [hero(entry)];
 
     const body = CJ.renderBody(entry);
     if (body) out.push(`<div class="container">${body}</div>`);
 
     out.push(`<div class="container">${joinBand()}</div>`);
 
-    const block = (title, inner, more) => `<div class="container">${CJ.block(title, inner, more)}</div>`;
+    const wrap = (inner) => `<div class="container">${inner}</div>`;
+    const teamsIndex = index("TEAMS");
+    const officersIndex = index("OFFICERS");
+    const shots = window.__manifest.carousel || [];
 
-    if (show.teams) {
-      const teams = byType("team").slice(0, show.teams);
-      out.push(block("Teams and research groups", CJ.cardGrid(teams, { empty: "No teams published yet." }), "teams"));
+    const teams = byFolder("TEAMS");
+    if (teamsIndex && teams.length) {
+      out.push(wrap(CJ.block("Teams and research groups", CJ.cardGrid(teams), "teams")));
     }
 
-    if (show.events) {
-      out.push(block("Upcoming", eventList(events(show.events))));
-    }
-
-    if (show.staff) {
-      const officers = byType("staff").slice(0, show.staff);
+    const officers = byFolder("OFFICERS");
+    if (officersIndex && officers.length) {
       out.push(
-        block(
-          "Officers",
-          officers.length
-            ? `<div class="row row-cols-2 row-cols-sm-3 row-cols-lg-6 g-3 cj-reveal">` +
-              officers.map((o) => `<div class="col">${CJ.card(o)}</div>`).join("") +
-              `</div>`
-            : `<div class="cj-empty"><p class="mb-0">No officers listed yet.</p></div>`,
-          "staff"
+        wrap(
+          CJ.block(
+            "Officers",
+            `<div class="row row-cols-2 row-cols-sm-3 row-cols-lg-6 g-3 cj-reveal">${officers
+              .map((o) => `<div class="col">${CJ.card(o)}</div>`)
+              .join("")}</div>`,
+            "officers"
+          )
         )
       );
     }
 
-    if (show.posts) {
-      const latest = (window.__manifest.posts || [])
-        .slice()
-        .sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")))
-        .slice(0, show.posts);
+    const ev = events(3);
+    if (ev.length) out.push(wrap(CJ.block("Upcoming", eventList(ev))));
+
+    const latest = (window.__manifest.posts || [])
+      .slice()
+      .sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")))
+      .slice(0, 3);
+    if (latest.length) {
       const cards = latest
         .map((p) => {
-          const team = byType("team").find((t) => t.slug === p.page);
+          const owner = pages().find((x) => x.slug === p.page);
           return `
           <div class="col">
             <article class="cj-post">
-              <p class="cj-post-kind">${p.date ? CJ.esc(p.date) : "Update"}${team ? ` | ${CJ.esc(team.title)}` : ""}</p>
+              <p class="cj-post-kind">${p.date ? CJ.esc(p.date) : "Update"}${
+            owner?.title ? ` | ${CJ.esc(owner.title)}` : ""
+          }</p>
               <a class="cj-post-title" href="${CJ.pageUrl(p.page)}#post-${CJ.slugify(p.id)}">${CJ.esc(p.title)}</a>
-              <p class="cj-post-text">${CJ.esc(p.summary)}</p>
+              <p class="cj-post-text">${CJ.esc(p.summary || "")}</p>
             </article>
           </div>`;
         })
         .join("");
       out.push(
-        block(
-          "Latest updates",
-          cards
-            ? `<div class="row row-cols-1 row-cols-sm-3 g-3 cj-reveal">${cards}</div>`
-            : `<div class="cj-empty"><p class="mb-0">No updates published yet.</p></div>`
-        )
+        wrap(CJ.block("Latest updates", `<div class="row row-cols-1 row-cols-sm-3 g-3 cj-reveal">${cards}</div>`))
       );
     }
 
-    if (shots.length) {
-      out.push(block("From around the organization", carousel(shots)));
-    }
+    if (shots.length) out.push(wrap(CJ.block("From around the organization", carousel(shots))));
 
     main.innerHTML = out.join("");
     CJ.bindGallery(main);

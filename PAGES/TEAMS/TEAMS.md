@@ -1,16 +1,12 @@
 ---
-title: Teams
-navLabel: Teams
 nav: true
-type: index
-order: 10
-kind: What we run
-list: team
+order: 2
 listLabel: All teams
-groupBy: kind
-tagline: Every team and research group in the organization.
-summary: Every team and research group in the organization.
 ---
+
+# Teams
+
+> Every team and research group in the organization.
 
 ## How we are organized
 

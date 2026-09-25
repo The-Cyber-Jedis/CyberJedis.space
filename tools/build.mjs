@@ -6,33 +6,17 @@ import { fileURLToPath } from "node:url";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const PAGES_DIR = path.join(ROOT, "PAGES");
 const DATA_DIR = path.join(ROOT, "data");
-const SKIP_DIRS = new Set(["media", "posts"]);
 const IMAGE_RE = /\.(jpg|jpeg|png|gif|webp|avif|svg)$/i;
+const IGNORED = new Set(["media", "posts", "thumbs"]);
+const DATE_PREFIX_RE = /^(\d{4}-\d{2}-\d{2})-(.+)$/;
 
-const ACCENTS = {
-  chrome: "#c0c0c0",
-  amber: "#ffbe0b",
-  blaze: "#fb5607",
-  neon: "#ff006e",
-  violet: "#8338ec",
-  azure: "#3a86ff"
-};
-
-function accentHex(value) {
-  if (!value) return null;
-  const key = String(value).trim().toLowerCase();
-  if (ACCENTS[key]) return ACCENTS[key];
-  if (/^#[0-9a-f]{3,8}$/i.test(key)) return key;
-  return null;
-}
+/* ---------------------------------------------------------------- utils */
 
 const asArray = (v) => (Array.isArray(v) ? v : v == null ? [] : [v]);
-const slugify = (s) =>
-  String(s).toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
 function parseFrontmatter(text) {
-  const m = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/.exec(text);
-  if (!m) return { data: {}, body: text };
+  const m = /^\s*(?:<!--[\s\S]*?-->\s*)*---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/.exec(text);
+  if (!m) return { data: {}, body: text, has: false };
   const data = {};
   let key = null;
   for (const raw of m[1].split(/\r?\n/)) {
@@ -49,7 +33,7 @@ function parseFrontmatter(text) {
     key = name;
     data[key] = value === "" ? {} : coerce(value);
   }
-  return { data, body: m[2] };
+  return { data, body: m[2], has: true };
 }
 
 function coerce(v) {
@@ -62,32 +46,35 @@ function coerce(v) {
   return v.replace(/^["']|["']$/g, "");
 }
 
+const stripComments = (md) => String(md ?? "").replace(/<!--[\s\S]*?-->/g, "");
+
 function plainText(md) {
-  return md
-    .replace(/<!--[\s\S]*?-->/g, " ")
+  return stripComments(md)
     .replace(/```[\s\S]*?```/g, " ")
-    .replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/!\[([^\]]*)\]\([^)]*\)/g, " ")
     .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
-    .replace(/^>.*$/gm, " ")
-    .replace(/^[#\-*\+|>\s]+/gm, " ")
-    .replace(/[*_`~]/g, "")
+    .replace(/^#{1,6}\s+.*$/gm, " ")
+    .replace(/^\s*[-*+]\s+/gm, " ")
+    .replace(/^\s*>\s?/gm, " ")
+    .replace(/[*_`~]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
 
-function firstSentence(md) {
-  const text = plainText(md);
-  const stop = text.search(/\.\s|\n/);
-  const cut = stop > 0 ? text.slice(0, stop + 1) : text;
-  return cut.length > 180 ? `${cut.slice(0, 177).trimEnd()}...` : cut;
-}
+const firstSentence = (md) => {
+  const t = plainText(withoutHead(md));
+  const stop = t.search(/\.\s|\n/);
+  const cut = stop > 0 ? t.slice(0, stop + 1) : t;
+  return cut.length > 190 ? `${cut.slice(0, 187).trimEnd()}...` : cut;
+};
 
 async function walk(dir) {
   const out = [];
-  for (const entry of await readdir(dir, { withFileTypes: true })) {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) out.push(...(await walk(full)));
-    else if (entry.isFile()) out.push(full);
+  for (const e of await readdir(dir, { withFileTypes: true })) {
+    if (IGNORED.has(e.name) || e.name.startsWith("_") || e.name.startsWith(".")) continue;
+    const full = path.join(dir, e.name);
+    if (e.isDirectory()) out.push(...(await walk(full)));
+    else if (e.isFile()) out.push(full);
   }
   return out;
 }
@@ -99,7 +86,6 @@ function imageSize(file) {
     const head = Buffer.alloc(65536);
     const read = readSync(fd, head, 0, head.length, 0);
     if (read < 24) return null;
-
     if (head[0] === 0x89 && head[1] === 0x50) {
       return { width: head.readUInt32BE(16), height: head.readUInt32BE(20) };
     }
@@ -113,9 +99,10 @@ function imageSize(file) {
         return { width: (bits & 0x3fff) + 1, height: ((bits >> 14) & 0x3fff) + 1 };
       }
       if (kind === "VP8X" && read >= 30) {
-        const w = 1 + (head[24] | (head[25] << 8) | (head[26] << 16));
-        const h = 1 + (head[27] | (head[28] << 8) | (head[29] << 16));
-        return { width: w, height: h };
+        return {
+          width: 1 + (head[24] | (head[25] << 8) | (head[26] << 16)),
+          height: 1 + (head[27] | (head[28] << 8) | (head[29] << 16))
+        };
       }
       return null;
     }
@@ -150,6 +137,44 @@ function imageSize(file) {
   }
 }
 
+/* -------------------------------------------------------------- content */
+
+/** Title comes from the first H1, falling back to the folder name. */
+function titleOf(body, fallback) {
+  const m = /^#\s+(.+)$/m.exec(stripComments(body));
+  return m ? m[1].trim() : fallback;
+}
+
+/** Tagline comes from the first blockquote directly under the H1. */
+function taglineOf(body) {
+  const clean = stripComments(body).replace(/\r/g, "");
+  const m = /^>\s*(.+)$/m.exec(clean);
+  return m ? m[1].trim() : null;
+}
+
+/** Logo is whatever is named logo.* in media/, else the first image in the body. */
+function logoRef(body) {
+  const m = /!\[[^\]]*\]\(([^)]+)\)/.exec(stripComments(body));
+  return m ? m[1].trim() : null;
+}
+
+/** Drops the leading H1 and blockquote so they are not repeated in summaries. */
+function withoutHead(md) {
+  return stripComments(md)
+    .replace(/^\s*#\s+[^\n]*\n+/, "")
+    .replace(/^\s*(?:>[^\n]*\n?)+/, "")
+    .trim();
+}
+
+function sectionsOf(body) {
+  return Array.from(stripComments(body).matchAll(/^##\s+(.+)$/gm)).map((m) =>
+    slug(m[1].trim())
+  );
+}
+
+const slug = (s) =>
+  String(s).toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
 function derivative(rel, size) {
   const dir = path.posix.dirname(rel);
   const stem = path.basename(rel, path.extname(rel));
@@ -157,15 +182,12 @@ function derivative(rel, size) {
   return existsSync(path.join(ROOT, candidate)) ? candidate : rel;
 }
 
-async function collectMedia(pageDir) {
-  const mediaDir = path.join(pageDir, "media");
+async function collectMedia(dir) {
+  const mediaDir = path.join(dir, "media");
   if (!existsSync(mediaDir)) return [];
-  const files = (await walk(mediaDir)).filter(
-    (f) => IMAGE_RE.test(f) && !f.split(path.sep).includes("thumbs")
-  );
+  const files = (await walk(mediaDir)).filter((f) => IMAGE_RE.test(f));
   const items = [];
   for (const file of files.sort()) {
-    const s = await stat(file);
     const rel = path.relative(ROOT, file).split(path.sep).join("/");
     const lg = derivative(rel, "");
     const sm = derivative(rel, "sm");
@@ -174,7 +196,6 @@ async function collectMedia(pageDir) {
     items.push({
       file: rel,
       name: path.basename(file),
-      bytes: s.size,
       lg,
       sm,
       width: full?.width ?? null,
@@ -186,168 +207,169 @@ async function collectMedia(pageDir) {
   return items;
 }
 
-async function readPage(pageDir) {
-  const mdPath = path.join(pageDir, "page.md");
-  if (!existsSync(mdPath)) return null;
-  const raw = await readFile(mdPath, "utf8");
-  const { data, body } = parseFrontmatter(raw);
-  const slug = path.relative(PAGES_DIR, pageDir).split(path.sep).join("/").toLowerCase();
-  const media = await collectMedia(pageDir);
-  const logoName = data.logo
-    ? String(data.logo).split("/").pop()
-    : (media.find((m) => /^logo\./i.test(m.name)) || {}).name;
-  const logoMedia = logoName ? media.find((m) => m.name === logoName) : undefined;
-  const title = data.title || slug.split("/").pop().replace(/-/g, " ").toUpperCase();
-  const sections = Array.from(body.matchAll(/^##\s+(.+)$/gm)).map((m) => slugify(m[1]));
-  const text = plainText(body);
-  return {
-    slug,
-    title,
-    kind: data.kind || null,
-    navLabel: data.navLabel || null,
-    nav: Boolean(data.nav),
-    tagline: data.tagline || null,
-    summary: data.summary || null,
-    type: data.type || "page",
-    list: data.list || null,
-    listLabel: data.listLabel || null,
-    groupBy: data.groupBy || null,
-    category: data.category || null,
-    division: data.division || null,
-    tags: asArray(data.tags),
-    order: typeof data.order === "number" ? data.order : 100,
-    accent: accentHex(data.accent),
-    logo: logoMedia ? logoMedia.lg : null,
-    logoSm: logoMedia ? logoMedia.sm : null,
-    postsLabel: data.postsLabel || null,
-    contact: data.contact && typeof data.contact === "object" ? data.contact : null,
-    media: media.filter((m) => m.name !== logoName),
-    source: path.relative(ROOT, mdPath).split(path.sep).join("/"),
-    dir: path.relative(ROOT, pageDir).split(path.sep).join("/"),
-    sections,
-    words: text.split(/\s+/).filter(Boolean).length,
-    empty: words(text) === 0,
-    published: data.published === false ? false : true,
-    updated: (await stat(mdPath)).mtime.toISOString().slice(0, 10)
-  };
-}
-
-const words = (s) => s.split(/\s+/).filter(Boolean).length;
-
-async function collectPosts(page) {
-  const dir = path.join(PAGES_DIR, ...page.slug.split("/").map((s) => s.toUpperCase()), "posts");
-  if (!existsSync(dir)) return [];
-  const files = (await readdir(dir)).filter((f) => f.endsWith(".md")).sort();
-  const posts = [];
-  for (const f of files) {
-    const raw = await readFile(path.join(dir, f), "utf8");
-    const { data, body } = parseFrontmatter(raw);
-    posts.push({
+async function collectPosts(dir) {
+  const postDir = path.join(dir, "posts");
+  if (!existsSync(postDir)) return [];
+  const out = [];
+  for (const f of (await readdir(postDir)).filter((f) => f.endsWith(".md")).sort()) {
+    const file = path.join(postDir, f);
+    const { data, body } = parseFrontmatter(await readFile(file, "utf8"));
+    out.push({
       id: f.replace(/\.md$/, ""),
-      page: page.slug,
-      dir: path.relative(ROOT, dir).split(path.sep).join("/"),
-      title: data.title || f.replace(/\.md$/, ""),
+      title: data.title || titleOf(body, f.replace(/\.md$/, "")),
       date: data.date || null,
       group: data.group || null,
-      source: path.relative(ROOT, path.join(dir, f)).split(path.sep).join("/"),
-      dir: path.relative(ROOT, dir).split(path.sep).join("/"),
+      source: path.relative(ROOT, file).split(path.sep).join("/"),
       summary: firstSentence(body)
     });
-  }
-  return posts;
-}
-
-async function collectEvents() {
-  const dir = path.join(PAGES_DIR, "EVENTS");
-  if (!existsSync(dir)) return [];
-  const files = (await readdir(dir)).filter((f) => f.endsWith(".md")).sort();
-  const events = [];
-  for (const f of files) {
-    const file = path.join(dir, f);
-    const raw = await readFile(file, "utf8");
-    const { data, body } = parseFrontmatter(raw);
-    if (!data.date && !data.recurring) continue;
-    const id = f.replace(/\.md$/, "");
-    const when = data.time ? String(data.time) : null;
-    const where = data.location ? String(data.location) : null;
-    events.push({
-      slug: `events/${id}`,
-      title: data.title || id.replace(/-/g, " ").toUpperCase(),
-      type: "event",
-      date: data.date ? String(data.date) : null,
-      recurring: data.recurring ? String(data.recurring) : null,
-      endDate: data.endDate ? String(data.endDate) : null,
-      time: when,
-      location: where,
-      kind: null,
-      category: data.category || "meeting",
-      division: null,
-      contact: null,
-      tagline: [data.recurring ? `Every ${data.recurring}` : data.date, when, where]
-        .filter(Boolean)
-        .join(" | "),
-      summary: firstSentence(body),
-      accent: accentHex(data.accent) || ACCENTS.amber,
-      order: 1000,
-      media: [],
-      source: path.relative(ROOT, file).split(path.sep).join("/"),
-      dir: path.relative(ROOT, dir).split(path.sep).join("/"),
-      sections: Array.from(body.matchAll(/^##\s+(.+)$/gm)).map((m) => slugify(m[1])),
-      words: words(plainText(body)),
-      empty: words(plainText(body)) === 0,
-      published: data.published === false ? false : true,
-      updated: (await stat(file)).mtime.toISOString().slice(0, 10)
-    });
-  }
-  events.sort((a, b) => {
-    const ad = a.date || a.recurring || "zzzz";
-    const bd = b.date || b.recurring || "zzzz";
-    return ad.localeCompare(bd);
-  });
-  return events;
-}
-
-async function collectCarousel() {
-  const dir = path.join(ROOT, "MEDIA", "img", "carousel");
-  if (!existsSync(dir)) return [];
-  const files = (await readdir(dir)).filter((f) => IMAGE_RE.test(f) && !f.startsWith("."));
-  return files
-    .sort()
-    .map((f) => `MEDIA/img/carousel/${f}`)
-    .map((rel) => ({ file: rel, lg: derivative(rel, ""), sm: derivative(rel, "sm") }));
-}
-
-async function pageDirs(dir, depth = 0) {
-  const out = [];
-  for (const entry of await readdir(dir, { withFileTypes: true })) {
-    if (!entry.isDirectory()) continue;
-    if (SKIP_DIRS.has(entry.name.toLowerCase())) continue;
-    const full = path.join(dir, entry.name);
-    out.push(full, ...(await pageDirs(full, depth + 1)));
   }
   return out;
 }
 
-async function build() {
+async function pickSource(dir) {
+  const entries = (await readdir(dir))
+    .filter((f) => f.toLowerCase().endsWith(".md") && !f.startsWith("_"))
+    .sort();
+  if (!entries.length) return null;
+  const stem = path.basename(dir).toLowerCase();
+  return entries.find((f) => f.replace(/\.md$/i, "").toLowerCase() === stem) || entries[0];
+}
+
+/* ----------------------------------------------------------------- main */
+
+async function readPage(dir, category, kind) {
+  const source = await pickSource(dir);
+  if (!source) return null;
+  const file = path.join(dir, source);
+  const raw = await readFile(file, "utf8");
+  const { data, body } = parseFrontmatter(raw);
+  const rel = path.relative(ROOT, dir).split(path.sep).join("/");
+  const id = path.relative(PAGES_DIR, dir).split(path.sep).join("/").toLowerCase();
+  const folder = path.basename(dir);
+  const media = await collectMedia(dir);
+  const declared = data.logo ? String(data.logo).split("/").pop() : null;
+  const named = (media.find((m) => /^logo\./i.test(m.name)) || {}).name;
+  const fromBody = logoRef(body);
+  const only = media.length === 1 ? media[0].name : null;
+  const wanted = declared || named || (fromBody ? path.basename(fromBody) : null) || only;
+  const logo = wanted ? media.find((m) => m.name === wanted) : undefined;
+  const title = data.title || titleOf(body, folder.replace(/[-_]/g, " ").toUpperCase());
+  const posts = (await collectPosts(dir)).map((p) => ({
+    ...p,
+    page: id,
+    owner: { title, slug: id }
+  }));
+  const text = plainText(body);
+  return {
+    slug: id,
+    title,
+    tagline: data.tagline || taglineOf(body) || null,
+    summary: data.summary || firstSentence(body) || null,
+    folder: category,
+    category: data.category || null,
+    kind: data.kind || null,
+    division: data.division || null,
+    tags: asArray(data.tags),
+    order: typeof data.order === "number" ? data.order : 100,
+    nav: data.nav === true,
+    featured: data.featured !== false,
+    accent: data.accent || null,
+    logo: logo ? logo.lg : null,
+    logoSm: logo ? logo.sm : null,
+    logoWidth: logo ? logo.width : null,
+    logoHeight: logo ? logo.height : null,
+    logoWidthSm: logo ? logo.widthSm : null,
+    contact: data.contact && typeof data.contact === "object" ? data.contact : null,
+    media: media.filter((m) => m.name !== logo?.name),
+    posts,
+    source: path.relative(ROOT, file).split(path.sep).join("/"),
+    dir: rel,
+    sections: sectionsOf(body),
+    words: text.split(/\s+/).filter(Boolean).length,
+    empty: text.split(/\s+/).filter(Boolean).length === 0,
+    updated: (await stat(file)).mtime.toISOString().slice(0, 10)
+  };
+}
+
+async function readEvent(file) {
+  const raw = await readFile(file, "utf8");
+  const { data, body } = parseFrontmatter(raw);
+  const base = path.basename(file, ".md");
+  const m = DATE_PREFIX_RE.exec(base);
+  const date = (data.date && String(data.date)) || (m ? m[1] : null);
+  if (!date) return null;
+  const slug = m ? m[2] : base;
+  const time = data.time ? String(data.time) : null;
+  const where = data.location ? String(data.location) : null;
+  return {
+    slug: `events/${slug}`,
+    title: data.title || titleOf(body, slug.replace(/-/g, " ")),
+    folder: "EVENTS",
+    category: data.category || "Event",
+    tagline: [date, time, where].filter(Boolean).join(" | "),
+    summary: firstSentence(body),
+    date,
+    time,
+    location: where,
+    accent: data.accent || null,
+    order: 1000,
+    media: [],
+    sections: sectionsOf(body),
+    source: path.relative(ROOT, file).split(path.sep).join("/"),
+    dir: path.relative(ROOT, path.dirname(file)).split(path.sep).join("/"),
+    empty: plainText(body).split(/\s+/).filter(Boolean).length === 0,
+    featured: true,
+    updated: (await stat(file)).mtime.toISOString().slice(0, 10)
+  };
+}
+
+async function main() {
+  const categories = (await readdir(PAGES_DIR, { withFileTypes: true }))
+    .filter((d) => d.isDirectory() && !d.name.startsWith("_") && !d.name.startsWith("."))
+    .map((d) => ({ name: d.name, dir: path.join(PAGES_DIR, d.name) }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+
   const pages = [];
-  for (const dir of await pageDirs(PAGES_DIR)) {
-    if (existsSync(path.join(dir, "page.md"))) pages.push(await readPage(dir));
+  const events = [];
+  const problems = [];
+  const indexOf = new Map();
+
+  for (const cat of categories) {
+    if (cat.name === "EVENTS") {
+      for (const f of (await readdir(cat.dir)).filter((f) => f.toLowerCase().endsWith(".md"))) {
+        const ev = await readEvent(path.join(cat.dir, f));
+        if (ev) events.push(ev);
+        else problems.push(`event filename must start with YYYY-MM-DD-: ${path.relative(ROOT, path.join(cat.dir, f))}`);
+      }
+      continue;
+    }
+    const index = await readPage(cat.dir, cat.name, "index");
+    if (index) {
+      index.isIndex = true;
+      index.indexFor = cat.name;
+      indexOf.set(cat.name, index);
+      pages.push(index);
+    }
+    const childDirs = (await readdir(cat.dir, { withFileTypes: true }))
+      .filter((d) => d.isDirectory() && !d.name.startsWith("_") && !IGNORED.has(d.name))
+      .map((d) => path.join(cat.dir, d.name))
+      .sort();
+    for (const dir of childDirs) {
+      const page = await readPage(dir, cat.name, "page");
+      if (page) pages.push(page);
+      else problems.push(`folder has no markdown file: ${path.relative(ROOT, dir)}`);
+    }
   }
 
-  pages.sort((a, b) => a.slug.localeCompare(b.slug));
-
-  const posts = [];
-  for (const page of pages) posts.push(...(await collectPosts(page)));
-
-  const events = await collectEvents();
   pages.push(...events);
   pages.sort((a, b) => a.slug.localeCompare(b.slug));
 
   const manifest = {
     generated: new Date().toISOString().slice(0, 10),
     carousel: await collectCarousel(),
+    indexes: Object.fromEntries(indexOf),
     pages,
-    posts
+    posts: pages.flatMap((p) => p.posts || [])
   };
 
   await mkdir(DATA_DIR, { recursive: true });
@@ -355,16 +377,26 @@ async function build() {
 
   const counts = {
     pages: pages.length,
-    empty: pages.filter((p) => p.empty && p.type !== "index").length,
-    posts: posts.length,
+    indexes: indexOf.size,
     events: events.length,
-    media: pages.reduce((n, p) => n + (p.media ? p.media.length : 0), 0)
+    posts: manifest.posts.length,
+    media: pages.reduce((n, p) => n + (p.media ? p.media.length : 0), 0),
+    empty: pages.filter((p) => p.empty).length
   };
-
   console.log(`manifest: ${JSON.stringify(counts)}`);
-  for (const p of pages.filter((x) => x.empty && x.type !== "index")) {
-    console.log(`needs content: ${p.slug}`);
-  }
+  for (const p of problems) console.log(`problem: ${p}`);
+  for (const p of pages.filter((x) => x.empty)) console.log(`needs content: ${p.slug}`);
 }
 
-build();
+async function collectCarousel() {
+  const dir = path.join(ROOT, "MEDIA", "img", "carousel");
+  if (!existsSync(dir)) return [];
+  const files = (await readdir(dir)).filter((f) => IMAGE_RE.test(f) && !f.startsWith("."));
+  return files.sort().map((f) => {
+    const rel = `MEDIA/img/carousel/${f}`;
+    const lg = derivative(rel, "");
+    return { file: rel, lg, sm: derivative(rel, "sm") };
+  });
+}
+
+main();

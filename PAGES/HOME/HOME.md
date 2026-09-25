@@ -1,16 +1,11 @@
 ---
-title: Home
-navLabel: Home
-type: index
+nav: true
 order: 1
-tagline: The largest cybersecurity student organization at UTSA.
-summary: The largest cybersecurity student organization at UTSA.
-show:
-  teams: 6
-  events: 3
-  staff: 6
-  posts: 3
 ---
+
+# UTSA Cyber Jedis
+
+> The largest cybersecurity student organization at UTSA.
 
 ## About our mission
 

@@ -1,16 +1,11 @@
 ---
-title: Quantum Cryptography
-navLabel: Quantum
-type: team
-kind: Research group
-order: 25
 category: Research
-tagline: A research group working on quantum and post-quantum cryptography.
-summary: Quantum key distribution protocols and the post-quantum replacements for what they threaten.
-tags: [quantum, post-quantum, cryptography]
-accent: azure
-postsLabel: Research updates
+order: 25
 ---
+
+# Quantum Cryptography
+
+> A research group working on quantum and post-quantum cryptography.
 
 ## About
 
@@ -42,3 +37,7 @@ run it.
 
 Meetings are announced on Discord. Progress updates are posted as they
 happen.
+
+## Contact
+
+- Discord: https://discord.gg/B5vuHqQBFe

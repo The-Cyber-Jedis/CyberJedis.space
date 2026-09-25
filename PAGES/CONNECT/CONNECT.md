@@ -1,13 +1,11 @@
 ---
-title: Connect
-navLabel: Connect
 nav: true
-type: page
-order: 30
-kind: Contact
-tagline: Find us, join us, follow along.
-summary: Social links and how to reach the organization.
+order: 4
 ---
+
+# Connect
+
+> Find us, join us, follow along.
 
 ## Come to a meeting
 

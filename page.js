@@ -23,7 +23,7 @@
       return failure(err);
     }
 
-    setTitle(entry.tagline || entry.summary || entry.title);
+    setTitle(entry.tagline || entry.title);
     CJ.mountShell(entry.slug);
 
     const parts = [CJ.hero(entry)];
@@ -31,14 +31,13 @@
       parts.push(CJ.emptyState());
     } else {
       parts.push(CJ.renderBody(entry));
-      parts.push(await CJ.postsBlock(entry.slug, entry.postsLabel));
+      parts.push(CJ.postsBlock(entry));
     }
-    if (entry.list) parts.push(CJ.renderIndex(entry));
+    if (entry.isIndex) parts.push(CJ.renderIndex(entry));
 
     main.innerHTML = `<div class="container">${parts.join("")}</div>`;
     CJ.bindGallery(main);
     CJ.bindFilters(main);
-    if (entry.published === false) main.classList.add("cj-unpublished");
   }
 
   function notFound() {
@@ -53,7 +52,7 @@
           <div class="d-flex flex-wrap gap-2 mt-4">
             <a class="btn btn-jedis btn-lg" href="index.html">Home</a>
             <a class="btn btn-outline-jedis btn-lg" href="${CJ.pageUrl("teams")}">Teams</a>
-            <a class="btn btn-outline-jedis btn-lg" href="${CJ.pageUrl("staff")}">Staff</a>
+            <a class="btn btn-outline-jedis btn-lg" href="${CJ.pageUrl("officers")}">Officers</a>
           </div>
         </div>
       </section>`;

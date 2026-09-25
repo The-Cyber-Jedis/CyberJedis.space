@@ -1,19 +1,11 @@
 ---
-title: Cyber Warfare and National Security
-navLabel: CWNS
-type: team
-kind: Research group
-order: 20
-postsLabel: Research updates
 category: Research
-tagline: We are a research group focused heavily on cybersecurity within the context of warfare.
-summary: Offensive security, malware analysis, and digital forensics in the context of modern conflict.
-tags: [cyber warfare, malware, forensics]
-accent: violet
-schedule: Wed and Thu 6:30 PM, NPB 1.202
-links:
-  discord: https://discord.gg/sthbyPkDRx
+order: 20
 ---
+
+# Cyber Warfare and National Security
+
+> We are a research group focused heavily on cybersecurity within the context of warfare.
 
 ## About
 
@@ -36,7 +28,7 @@ We want students to be able to recognize the signs of an ongoing
 cyberattack and respond to it promptly, and to understand the risks our
 nation's industries and military face as cyberspace keeps changing.
 
-## What we do
+## What We Do
 
 Our research group specializes in hands-on training, including topics such
 as:
@@ -49,3 +41,7 @@ as:
 
 - Wednesdays - 6:30 PM - 1.202 NPB, Main Campus
 - Thursdays - 6:30 PM - 1.202 NPB, Main Campus
+
+## Contact
+
+- Discord: https://discord.gg/sthbyPkDRx

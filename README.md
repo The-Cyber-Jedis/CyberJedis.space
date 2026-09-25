@@ -6,107 +6,102 @@ The site root is the repository root, served by GitHub Pages.
 Bootstrap 5.3.3 is vendored in `assets/vendor/bootstrap`, not loaded from a
 CDN. `styles.css` is the brand layer on top of it.
 
-## Layout
+## The one rule
+
+**Every page is one markdown file in its own folder.**
 
 ```
 PAGES/
-  HOME/page.md                 homepage content and widgets
-  CONNECT/page.md
+  HOME/
+    HOME.md                  index.html renders this
+  CONNECT/
+    CONNECT.md
   TEAMS/
-    page.md                    index, groups every team by kind
+    TEAMS.md                 this folder is the teams catalog
     CWNS/
-      page.md
-      media/
-      posts/
+      CWNS.md                a team page
+      media/                 logo + gallery images
+        logo.png
+        photo.jpg
+        thumbs/              generated, do not edit
+      posts/                 team updates
+        001-first-update.md
     QUANTUM/
-      page.md
-      posts/
     ORDER404/
-      page.md
-      media/
-  STAFF/
-    page.md                    index, groups every officer by division
-    keeban-villareal/
-      page.md                  one folder per officer
+  OFFICERS/
+    OFFICERS.md              this folder is the officers catalog
+    ana-moreno/
+      ana-moreno.md          an officer page
       media/
         headshot.png
-    hondo-limon/
-    gabriel-green/
-    adithyaa-sivamal/
-    vincent/
-    ana-moreno/
   EVENTS/
-    general-meeting.md         event data, no index page
+    2026-09-25-general-meeting.md
+  _TEMPLATE/
+    TEAM.md                  copy this to start a team
+    FIRST-LAST.md            copy this to add an officer
 ```
 
-**Every page is a `page.md` in its own folder.** A team and an officer are
-structured identically, which is the whole point: adding either one is the
-same three steps.
+The folder name is the page. `PAGES/TEAMS/CWNS/CWNS.md` is served at
+`page.html?p=teams/cwns`. A folder starting with `_` is a template and is
+never published.
 
-The URL is the folder path, so `PAGES/STAFF/ana-moreno/page.md` is served
-at `page.html?p=staff/ana-moreno`.
+Inside a page file:
 
-## Adding or editing a page
-
-1. Create the folder, for example `PAGES/TEAMS/NEWTEAM/`
-2. Copy `TEMPLATES/WEBPAGE_TEMPLATE.md` to `page.md` in it
-3. Fill in the frontmatter and the sections
-4. Drop a `logo.png` into the `media/` folder
-5. Drop any other images into the same folder, they appear in Gallery
-6. Run `python3 tools/images.py` then `node tools/build.mjs`
-7. Commit `page.md`, the media, the derivatives, and `data/manifest.json`
-
-To hide a page without deleting it, set `published: false`.
-
-## Frontmatter
-
-| Key | Purpose |
+| You write | You get |
 | --- | --- |
-| `title` | Page heading |
-| `navLabel` | Shorter label for the site nav |
-| `nav` | `true` puts the page in the primary nav |
-| `order` | Sort weight for nav and index grids |
-| `type` | `page`, `team`, `staff`, `event`, or `index` |
-| `kind` | Label above the page title, such as `Research group` |
-| `list` | On an `index` page, the child `type` to auto list |
-| `listLabel` | Heading above the auto generated grid |
-| `groupBy` | Frontmatter key to group the listing by, such as `division` |
-| `category` | Grouping label, also filters index children |
-| `division` | Grouping label for staff, used with `groupBy` |
-| `tagline` | One line under the title |
-| `summary` | One line used on cards |
-| `tags` | `[tag-a, tag-b]` |
-| `accent` | `amber`, `blaze`, `neon`, `violet`, `azure`, or a hex value |
-| `logo` | Media file used as the mark, defaults to `logo.*` |
-| `schedule` | Short meeting line shown in the hero |
-| `links` | `key: url` pairs rendered as buttons |
-| `contact` | `key: url` pairs rendered as a labelled contact block |
-| `postsLabel` | Heading for the page's post list, defaults to Updates |
-| `show` | Homepage widgets, for example `teams: 6, posts: 3` |
-| `published` | `false` hides the page from all listings |
+| `# Title` | the page heading and its card title |
+| `> one line` | the tagline under the heading |
+| `## Heading` | a section, in the order you write them |
+| `## Gallery` | a slideshow of everything in `media/` |
+| any image in `media/` | your card mark and page photo, if it is the only one, or named `logo.*` |
 
-`##` headings in `page.md` become page sections in order. `## Gallery` is
-special and fills itself from the media folder.
+Frontmatter is optional. You only need it for two things: where a card
+sorts, and which group a team or officer is listed under.
 
-Relative links and images in `page.md` are resolved against that page's
-own folder, so `media/headshot.png` works wherever the page is served
-from.
+```yaml
+---
+category: Research     # teams: the group heading. officers: not used
+kind: CWNS Lead        # officers: your role, shown above your name
+division: Research     # officers: the group heading
+order: 20              # lower comes first
+nav: true              # only for the four pages in the site menu
+listLabel: All teams   # optional heading above the card grid
+---
+```
+
+## Adding a team
+
+1. Copy `PAGES/_TEMPLATE/TEAM.md` to `PAGES/TEAMS/<name>/<name>.md`
+2. Fill in the brackets
+3. Drop a logo in the folder's `media/`
+4. Run `python3 tools/images.py` then `node tools/build.mjs`
+5. Commit the file, the media, the derivatives, and `data/manifest.json`
+
+It appears on the teams page automatically. No other file needs editing.
 
 ## Adding an officer
 
-1. Create `PAGES/STAFF/<name>/`
-2. Copy `TEMPLATES/WEBPAGE_TEMPLATE.md` to `page.md` in it
-3. Set `type: staff`, `kind:` for the role, `division:` for the group
-4. Drop a headshot in `media/` and set `logo: media/<file>`
-5. Put their links in `contact:` and write the bio under the frontmatter
-6. Build and commit as usual
+1. Copy `PAGES/_TEMPLATE/FIRST-LAST.md` to `PAGES/OFFICERS/<first-last>/<first-last>.md`
+2. Fill in the brackets, set `kind` to the role and `division` to the group
+3. Drop a headshot in the folder's `media/`
+4. Build and commit as above
 
-They appear on the staff index under their division, and the card links to
-their page. No headshot yet is fine, the card falls back to a generated
-initials avatar.
+Their card is grouped under their division and links to their page.
 
-Roles live on the officer's page, not on the team page, so a role change is
-one edit in one file.
+## Adding an event
+
+Save a file in `PAGES/EVENTS/` named `YYYY-MM-DD-what-it-is.md`. The date
+comes from the filename, so nothing else is needed. Events show on the
+homepage and are addressable at `page.html?p=events/<what-it-is>`.
+
+Time and location can be set in frontmatter with `time:` and `location:`,
+otherwise they are left out of the listing.
+
+## Adding a team update
+
+Save a file in the team's `posts/` folder. Filenames sort in order, so
+`001-`, `002-` keeps them chronological. A `date:` in frontmatter puts the
+update on the homepage.
 
 ## Images
 
@@ -120,19 +115,8 @@ and never modifies the original:
 
 Photographic PNGs are re-encoded as JPEG, since a photo kept as PNG is
 several times larger for the same pixels. Aspect ratio is never changed,
-so nothing is cropped. Derivatives are committed and CI fails if they are
+so nothing is cropped. Derivatives are committed, and CI fails if they are
 stale.
-
-## Events
-
-Drop a file into `PAGES/EVENTS/` with a `date` or `recurring` in the
-frontmatter. Events show on the homepage and are addressable at
-`page.html?p=events/<file>`. There is no events index page.
-
-## Posts
-
-Team posts live in `PAGES/<TEAM FOLDER>/posts/*.md`. They appear on the
-team page and in the homepage updates widget.
 
 ## Build
 
@@ -141,8 +125,8 @@ python3 tools/images.py      # regenerate image derivatives
 node tools/build.mjs         # regenerate data/manifest.json
 ```
 
-`build.mjs` scans `PAGES/`, writes `data/manifest.json`, and lists any
-page that needs content. CI fails if either output is out of date.
+The build reports any folder with no markdown file and any page with no
+content. CI fails if either output is out of date.
 
 ## Preview
 
@@ -154,7 +138,7 @@ python3 localdev.py 8000
 
 | File | Purpose |
 | --- | --- |
-| `index.html` | Homepage shell, reads `PAGES/HOME/page.md` |
+| `index.html` | Homepage shell, renders `PAGES/HOME/HOME.md` |
 | `page.html` | Renders any page from `?p=<folder path>` |
 | `styles.css` | Brand layer on top of Bootstrap |
 | `site.js` | Shared rendering helpers |

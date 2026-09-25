@@ -1,16 +1,12 @@
 ---
-title: Staff
-navLabel: Staff
 nav: true
-type: index
-order: 20
-kind: The team
-list: staff
-listLabel: Everyone
-groupBy: division
-tagline: The students who keep the organization running.
-summary: The students who keep the organization running.
+order: 3
+listLabel: All officers
 ---
+
+# Officers
+
+> The students who keep the organization running.
 
 ## Who does what
 

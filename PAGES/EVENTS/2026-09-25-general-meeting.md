@@ -1,11 +1,4 @@
----
-title: General Meeting
-date: 2026-09-25
-category: Meeting
-time: 6:00 PM
-location: NPB 1.226
-accent: amber
----
+# General Meeting
 
 Every Friday at 6:00 PM, all teams check in, we share what is coming up,
 and new members get walked through how to join.
