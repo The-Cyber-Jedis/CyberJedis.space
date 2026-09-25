@@ -25,6 +25,7 @@
       "postsLabel": null,
       "media": [],
       "source": "PAGES/CONNECT/page.md",
+      "dir": "PAGES/CONNECT",
       "sections": [
         "come-to-a-meeting",
         "follow-the-journey",
@@ -51,6 +52,7 @@
       "order": 1000,
       "media": [],
       "source": "PAGES/EVENTS/general-meeting.md",
+      "dir": "PAGES/EVENTS",
       "sections": [
         "time-place",
         "details"
@@ -78,175 +80,11 @@
       "postsLabel": null,
       "media": [],
       "source": "PAGES/HOME/page.md",
+      "dir": "PAGES/HOME",
       "sections": [
         "about-our-mission"
       ],
       "words": 80,
-      "empty": false,
-      "published": true,
-      "updated": "2026-09-25"
-    },
-    {
-      "slug": "people/adithyaa-sivamal",
-      "title": "Adithyaa Sivamal",
-      "navLabel": null,
-      "nav": false,
-      "tagline": "CWNS Assistant Lead for the Cyber Warfare and National Security research group.",
-      "summary": "CWNS Assistant Lead for the Cyber Warfare and National Security research group.",
-      "type": "staff",
-      "list": null,
-      "listLabel": null,
-      "category": "Research",
-      "tags": [
-        "cwns",
-        "research"
-      ],
-      "order": 12,
-      "accent": "#8338ec",
-      "logo": null,
-      "postsLabel": null,
-      "media": [],
-      "source": "PAGES/PEOPLE/adithyaa-sivamal/page.md",
-      "sections": [
-        "role",
-        "bio",
-        "contact"
-      ],
-      "words": 31,
-      "empty": false,
-      "published": true,
-      "updated": "2026-09-25"
-    },
-    {
-      "slug": "people/ana-moreno",
-      "title": "Ana Moreno",
-      "navLabel": null,
-      "nav": false,
-      "tagline": "Marketing officer and Order404 member, filming and editing for the organization.",
-      "summary": "Marketing officer and Order404 member, filming and editing for the organization.",
-      "type": "staff",
-      "list": null,
-      "listLabel": null,
-      "category": "Marketing",
-      "tags": [
-        "marketing",
-        "order404",
-        "video"
-      ],
-      "order": 20,
-      "accent": "#ff006e",
-      "logo": "PAGES/PEOPLE/ana-moreno/media/headshot.jpg",
-      "postsLabel": null,
-      "media": [
-        {
-          "file": "PAGES/PEOPLE/ana-moreno/media/logo.png",
-          "name": "logo.png",
-          "bytes": 350573
-        }
-      ],
-      "source": "PAGES/PEOPLE/ana-moreno/page.md",
-      "sections": [
-        "about",
-        "gallery",
-        "mission",
-        "what-we-do",
-        "projects",
-        "contact"
-      ],
-      "words": 233,
-      "empty": false,
-      "published": true,
-      "updated": "2026-09-25"
-    },
-    {
-      "slug": "people/gabriel-green",
-      "title": "Gabriel Green",
-      "navLabel": null,
-      "nav": false,
-      "tagline": "CWNS Lead for the Cyber Warfare and National Security research group.",
-      "summary": "CWNS Lead for the Cyber Warfare and National Security research group.",
-      "type": "staff",
-      "list": null,
-      "listLabel": null,
-      "category": "Research",
-      "tags": [
-        "cwns",
-        "research"
-      ],
-      "order": 11,
-      "accent": "#8338ec",
-      "logo": null,
-      "postsLabel": null,
-      "media": [],
-      "source": "PAGES/PEOPLE/gabriel-green/page.md",
-      "sections": [
-        "role",
-        "bio",
-        "contact"
-      ],
-      "words": 33,
-      "empty": false,
-      "published": true,
-      "updated": "2026-09-25"
-    },
-    {
-      "slug": "people/hondo-limon",
-      "title": "Hondo Limon",
-      "navLabel": null,
-      "nav": false,
-      "tagline": "CWNS Lead for the Cyber Warfare and National Security research group.",
-      "summary": "CWNS Lead for the Cyber Warfare and National Security research group.",
-      "type": "staff",
-      "list": null,
-      "listLabel": null,
-      "category": "Research",
-      "tags": [
-        "cwns",
-        "research"
-      ],
-      "order": 10,
-      "accent": "#8338ec",
-      "logo": null,
-      "postsLabel": null,
-      "media": [],
-      "source": "PAGES/PEOPLE/hondo-limon/page.md",
-      "sections": [
-        "role",
-        "bio",
-        "contact"
-      ],
-      "words": 33,
-      "empty": false,
-      "published": true,
-      "updated": "2026-09-25"
-    },
-    {
-      "slug": "people/vincent",
-      "title": "Vincent",
-      "navLabel": null,
-      "nav": false,
-      "tagline": "Marketing officer and member of Order404.",
-      "summary": "Marketing officer and member of Order404.",
-      "type": "staff",
-      "list": null,
-      "listLabel": null,
-      "category": "Marketing",
-      "tags": [
-        "marketing",
-        "order404"
-      ],
-      "order": 21,
-      "accent": "#ff006e",
-      "logo": null,
-      "postsLabel": null,
-      "media": [],
-      "source": "PAGES/PEOPLE/vincent/page.md",
-      "sections": [
-        "role",
-        "bio",
-        "contact"
-      ],
-      "words": 37,
       "empty": false,
       "published": true,
       "updated": "2026-09-25"
@@ -258,21 +96,41 @@
       "nav": true,
       "tagline": "The students who keep the organization running.",
       "summary": "The students who keep the organization running.",
-      "type": "index",
-      "list": "staff",
-      "listLabel": "Officers and leads",
+      "type": "page",
+      "list": null,
+      "listLabel": null,
       "category": null,
       "tags": [],
       "order": 20,
-      "accent": null,
+      "accent": "#8338ec",
       "logo": null,
       "postsLabel": null,
-      "media": [],
+      "media": [
+        {
+          "file": "PAGES/STAFF/media/ana.png",
+          "name": "ana.png",
+          "bytes": 2208604
+        },
+        {
+          "file": "PAGES/STAFF/media/hondo.png",
+          "name": "hondo.png",
+          "bytes": 2806506
+        },
+        {
+          "file": "PAGES/STAFF/media/keeban.png",
+          "name": "keeban.png",
+          "bytes": 1448936
+        }
+      ],
       "source": "PAGES/STAFF/page.md",
+      "dir": "PAGES/STAFF",
       "sections": [
+        "people",
+        "roles",
+        "about-ana",
         "get-involved"
       ],
-      "words": 27,
+      "words": 252,
       "empty": false,
       "published": true,
       "updated": "2026-09-25"
@@ -295,6 +153,7 @@
       "postsLabel": null,
       "media": [],
       "source": "PAGES/TEAMS/page.md",
+      "dir": "PAGES/TEAMS",
       "sections": [
         "how-teams-work"
       ],
@@ -341,6 +200,7 @@
         }
       ],
       "source": "PAGES/TEAMS/CWNS/page.md",
+      "dir": "PAGES/TEAMS/CWNS",
       "sections": [
         "about",
         "gallery",
@@ -360,8 +220,8 @@
       "title": "Order404",
       "navLabel": null,
       "nav": false,
-      "tagline": null,
-      "summary": null,
+      "tagline": "Cybersecurity, creativity, and controlled chaos.",
+      "summary": "Cybersecurity, creativity, and controlled chaos.",
       "type": "team",
       "list": null,
       "listLabel": null,
@@ -372,10 +232,11 @@
       ],
       "order": 40,
       "accent": "#fb5607",
-      "logo": null,
+      "logo": "PAGES/TEAMS/ORDER404/media/logo.png",
       "postsLabel": null,
       "media": [],
       "source": "PAGES/TEAMS/ORDER404/page.md",
+      "dir": "PAGES/TEAMS/ORDER404",
       "sections": [],
       "words": 0,
       "empty": true,
@@ -404,6 +265,7 @@
       "postsLabel": "Research updates",
       "media": [],
       "source": "PAGES/TEAMS/QUANTUM/page.md",
+      "dir": "PAGES/TEAMS/QUANTUM",
       "sections": [
         "about",
         "what-we-do",
@@ -420,6 +282,7 @@
     {
       "id": "CWPost_001",
       "page": "teams/cwns",
+      "dir": "PAGES/TEAMS/CWNS/posts",
       "title": "Cyber Warfare Report",
       "date": "2026-08-22",
       "group": "research",
@@ -429,6 +292,7 @@
     {
       "id": "QPost_001",
       "page": "teams/quantum",
+      "dir": "PAGES/TEAMS/QUANTUM/posts",
       "title": "Quantum Cryptography Update 1",
       "date": "2026-08-15",
       "group": "research",
@@ -438,6 +302,7 @@
     {
       "id": "QPost_002",
       "page": "teams/quantum",
+      "dir": "PAGES/TEAMS/QUANTUM/posts",
       "title": "Post-Quantum Security Approaches",
       "date": "2026-08-29",
       "group": "research",

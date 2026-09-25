@@ -116,8 +116,18 @@
       blocks.push(section("Upcoming", "upcoming", eventList(events(show.events))));
     }
     if (show.staff) {
-      const staff = byType("staff").slice(0, show.staff);
-      blocks.push(section("Officers and leads", "staff", CJ.cardGrid(staff, { empty: "No staff pages published yet." }), "staff"));
+      const staffStub = CJ.findPage("staff");
+      const people = staffStub ? CJ.sectionHtml(await CJ.loadEntry(staffStub), "people") : "";
+      blocks.push(
+        section(
+          "Officers and leads",
+          "staff",
+          people
+            ? `<div class="people people-compact">${people}</div>`
+            : `<div class="empty-state"><p>No staff listed yet.</p></div>`,
+          "staff"
+        )
+      );
     }
     if (show.posts) {
       const latest = (window.__manifest.posts || [])

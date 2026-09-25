@@ -11,6 +11,11 @@ const CJ = (() => {
 
   const isImage = (name) => /\.(jpg|jpeg|png|gif|webp|avif|svg)$/i.test(name);
 
+  const isRelative = (url) => url && !/^([a-z][a-z0-9+.-]*:|\/|#)/i.test(url);
+
+  const resolve = (url, base) =>
+    base && isRelative(url) ? `${base.replace(/\/+$/, "")}/${url.replace(/^\.\//, "")}` : url;
+
   function parseFrontmatter(text) {
     const m = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/.exec(text);
     if (!m) return { data: {}, body: text };
@@ -50,24 +55,26 @@ const CJ = (() => {
     return String(md == null ? "" : md).replace(/<!--[\s\S]*?-->/g, "");
   }
 
-  function sanitize(html) {
+  function sanitize(html, base) {
     const tpl = document.createElement("div");
     tpl.innerHTML = html;
     tpl.querySelectorAll("script,style,iframe,object,embed,form,link,meta").forEach((n) => n.remove());
     tpl.querySelectorAll("*").forEach((n) => {
       for (const attr of Array.from(n.attributes)) {
         const name = attr.name.toLowerCase();
-        const value = attr.value.trim().toLowerCase();
+        const value = attr.value.trim();
         if (name.startsWith("on")) n.removeAttribute(attr.name);
-        if ((name === "href" || name === "src") && value.startsWith("javascript:")) {
+        if ((name === "href" || name === "src") && value.toLowerCase().startsWith("javascript:")) {
           n.removeAttribute(attr.name);
         }
       }
       if (n.tagName === "A" && n.getAttribute("href")) {
+        n.setAttribute("href", resolve(n.getAttribute("href"), base));
         n.setAttribute("target", "_blank");
         n.setAttribute("rel", "noopener noreferrer");
       }
       if (n.tagName === "IMG") {
+        n.setAttribute("src", resolve(n.getAttribute("src"), base));
         n.setAttribute("loading", "lazy");
         n.setAttribute("decoding", "async");
       }
@@ -75,7 +82,7 @@ const CJ = (() => {
     return tpl.innerHTML;
   }
 
-  const md = (text) => sanitize(window.marked.parse(stripComments(text || "")));
+  const md = (text, base) => sanitize(window.marked.parse(stripComments(text || "")), base);
 
   async function loadManifest() {
     if (state.manifest) return state.manifest;
@@ -334,7 +341,7 @@ const CJ = (() => {
   function renderBody(entry) {
     const { lead, sections } = splitSections(entry.body);
     const blocks = [];
-    if (lead) blocks.push(`<section class="block"><div class="prose">${md(lead)}</div></section>`);
+    if (lead) blocks.push(`<section class="block"><div class="prose">${md(lead, entry.dir)}</div></section>`);
     sections.forEach((s) => {
       const key = slugify(s.heading);
       if (key === "gallery") {
@@ -342,7 +349,7 @@ const CJ = (() => {
         if (g) blocks.push(`<section class="block" id="${key}"><h2 class="block-title">${esc(s.heading)}</h2>${g}</section>`);
         return;
       }
-      const inner = md(s.lines.join("\n")).trim();
+      const inner = md(s.lines.join("\n"), entry.dir).trim();
       if (!inner) return;
       blocks.push(`<section class="block" id="${key}"><h2 class="block-title">${esc(s.heading)}</h2><div class="prose">${inner}</div></section>`);
     });
@@ -436,6 +443,12 @@ const CJ = (() => {
       .join(`<span class="crumb-sep">/</span>`);
   }
 
+  function sectionHtml(entry, key) {
+    const { sections } = splitSections(entry.body || "");
+    const s = sections.find((x) => slugify(x.heading) === key);
+    return s ? md(s.lines.join("\n"), entry.dir).trim() : "";
+  }
+
   function postsFor(slug) {
     return (state.manifest.posts || [])
       .filter((p) => p.page === slug)
@@ -450,7 +463,7 @@ const CJ = (() => {
       <article class="post" id="post-${slugify(post.id)}">
         <p class="post-kind">${post.date ? esc(post.date) : "Update"}${post.group ? ` | ${esc(post.group)}` : ""}</p>
         <h3 class="post-title">${esc(post.title)}</h3>
-        <div class="prose">${md(body)}</div>
+        <div class="prose">${md(body, post.dir)}</div>
       </article>`;
   }
 
@@ -485,6 +498,7 @@ const CJ = (() => {
     crumbs,
     postsFor,
     postsBlock,
+    sectionHtml,
     bindGallery,
     bindFilters,
     emptyState,

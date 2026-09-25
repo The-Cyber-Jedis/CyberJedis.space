@@ -140,6 +140,7 @@ async function readPage(pageDir) {
     postsLabel: data.postsLabel || null,
     media: media.filter((m) => m.name !== logoName),
     source: path.relative(ROOT, mdPath).split(path.sep).join("/"),
+    dir: path.relative(ROOT, pageDir).split(path.sep).join("/"),
     sections,
     words: text.split(/\s+/).filter(Boolean).length,
     empty: words(text) === 0,
@@ -161,10 +162,12 @@ async function collectPosts(page) {
     posts.push({
       id: f.replace(/\.md$/, ""),
       page: page.slug,
+      dir: path.relative(ROOT, dir).split(path.sep).join("/"),
       title: data.title || f.replace(/\.md$/, ""),
       date: data.date || null,
       group: data.group || null,
       source: path.relative(ROOT, path.join(dir, f)).split(path.sep).join("/"),
+      dir: path.relative(ROOT, dir).split(path.sep).join("/"),
       summary: firstSentence(body)
     });
   }
@@ -202,6 +205,7 @@ async function collectEvents() {
       order: 1000,
       media: [],
       source: path.relative(ROOT, file).split(path.sep).join("/"),
+      dir: path.relative(ROOT, dir).split(path.sep).join("/"),
       sections: Array.from(body.matchAll(/^##\s+(.+)$/gm)).map((m) => slugify(m[1])),
       words: words(plainText(body)),
       empty: words(plainText(body)) === 0,

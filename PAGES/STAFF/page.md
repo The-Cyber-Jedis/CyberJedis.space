@@ -2,13 +2,70 @@
 title: Staff
 navLabel: Staff
 nav: true
-type: index
+type: page
 order: 20
-list: staff
-listLabel: Officers and leads
+accent: violet
 tagline: The students who keep the organization running.
 summary: The students who keep the organization running.
 ---
+
+## People
+
+<ul class="people">
+  <li class="person">
+    <img class="person-photo" src="media/hondo.png" alt="Hondo Limon" width="1080" height="1350">
+    <p class="person-name">Hondo Limon</p>
+    <p class="person-role">CWNS Lead</p>
+  </li>
+  <li class="person">
+    <img class="person-photo" src="media/keeban.png" alt="Keeban Villareal" width="1310" height="1310">
+    <p class="person-name">Keeban Villareal</p>
+    <p class="person-role">Role to be confirmed</p>
+  </li>
+  <li class="person">
+    <img class="person-photo" src="media/ana.png" alt="Ana Moreno" width="1080" height="1350">
+    <p class="person-name">Ana Moreno</p>
+    <p class="person-role">Marketing officer, Order404</p>
+  </li>
+  <li class="person">
+    <p class="person-photo person-photo-empty" aria-hidden="true"></p>
+    <p class="person-name">Gabriel Green</p>
+    <p class="person-role">CWNS Lead</p>
+  </li>
+  <li class="person">
+    <p class="person-photo person-photo-empty" aria-hidden="true"></p>
+    <p class="person-name">Adithyaa Sivamal</p>
+    <p class="person-role">CWNS Assistant Lead</p>
+  </li>
+  <li class="person">
+    <p class="person-photo person-photo-empty" aria-hidden="true"></p>
+    <p class="person-name">Vincent</p>
+    <p class="person-role">Marketing officer, Order404</p>
+  </li>
+</ul>
+
+## Roles
+
+- **Hondo Limon** and **Gabriel Green** lead the Cyber Warfare and National Security research group
+- **Adithyaa Sivamal** is the assistant lead on the same group
+- **Ana Moreno** and **Vincent** are the marketing officers, and both are members of Order404
+
+## About Ana
+
+Ana joined the organization in Fall 2025 and has taken on more
+responsibility since. She became a marketing officer and handles filming
+and editing, and she joined Vincent in Order404, where the two of them
+have been focused on growing the group.
+
+As a marketing officer she focuses on capturing and announcing what the
+organization has done and what is coming up. She has been editing video
+since last semester, including **Meet the Officers**, an introductory
+video of the officers at the time.
+
+- Email: ana.moreno@my.utsa.edu
+- Discord: https://discord.com/users/1438385342179971226
+- LinkedIn: https://www.linkedin.com/in/anamoreno2026
+
 ## Get involved
 
 Officer positions open up every semester. Come to a general meeting, or

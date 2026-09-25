@@ -17,9 +17,9 @@ PAGES/
       posts/
     QUANTUM/
     ORDER404/
-  STAFF/page.md                staff index, auto-lists every staff page
-  PEOPLE/
-    ana-moreno/page.md
+  STAFF/
+    page.md                    the one people page
+    media/                     one headshot per person
   EVENTS/
     general-meeting.md         event data, no index page
 ```
@@ -48,7 +48,7 @@ To hide a page without deleting it, set `published: false`.
 | `navLabel` | Shorter label for the site nav |
 | `nav` | `true` puts the page in the primary nav |
 | `order` | Sort weight for nav and index grids |
-| `type` | `page`, `team`, `staff`, `event`, or `index` |
+| `type` | `page`, `team`, `event`, or `index`. `staff` is available if people ever need their own pages |
 | `list` | On an `index` page, the child `type` to auto list |
 | `listLabel` | Heading above the auto generated grid |
 | `category` | Grouping label, also filters index children |
@@ -66,6 +66,26 @@ To hide a page without deleting it, set `published: false`.
 `##` headings in `page.md` become page sections in order. `## Gallery` is
 special and fills itself from the media folder.
 
+Relative links and images in `page.md` are resolved against that page's
+own folder, so `media/headshot.png` works wherever the page is served
+from.
+
+## People
+
+Everyone is listed on the single staff page in `PAGES/STAFF/page.md`.
+Each entry is a copy of this block, with the headshot as the main element:
+
+```
+<li class="person">
+  <img class="person-photo" src="media/name.png" alt="Full Name" width="1080" height="1350">
+  <p class="person-name">Full Name</p>
+  <p class="person-role">Role</p>
+</li>
+```
+
+Put the headshots in `PAGES/STAFF/media/`. Omit the `img` and use
+`<p class="person-photo person-photo-empty">` when there is no photo yet.
+
 ## Events
 
 Drop a file into `PAGES/EVENTS/` with a `date` or `recurring` in the
@@ -74,7 +94,7 @@ frontmatter. Events show on the homepage and are addressable at
 
 ## Posts
 
-Team posts live in `<team folder>/posts/*.md`. They appear on the team
+Team posts live in `PAGES/<TEAM FOLDER>/posts/*.md`. They appear on the team
 page and in the homepage updates widget.
 
 ## Build
