@@ -130,7 +130,7 @@
         "about-ana",
         "get-involved"
       ],
-      "words": 252,
+      "words": 273,
       "empty": false,
       "published": true,
       "updated": "2026-09-25"
@@ -237,9 +237,11 @@
       "media": [],
       "source": "PAGES/TEAMS/ORDER404/page.md",
       "dir": "PAGES/TEAMS/ORDER404",
-      "sections": [],
-      "words": 0,
-      "empty": true,
+      "sections": [
+        "team"
+      ],
+      "words": 8,
+      "empty": false,
       "published": false,
       "updated": "2026-09-25"
     },
